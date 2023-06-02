@@ -21,7 +21,7 @@ class Login:
     def __init__(self):
         # Creación de la ventana principal
         self.root = ctk.CTk() # Instancia
-        self.root.title("Programación Fácil - Proyecto de bases de datos") # Título
+        self.root.title("Syspe") # Título
         self.root.iconbitmap(os.path.join(carpeta_imagenes, "")) # Icono
         
         # Obtener el tamaño de la pantalla
