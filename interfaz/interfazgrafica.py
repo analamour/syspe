@@ -20,46 +20,62 @@ ctk.set_default_color_theme("green")
 class Login:
     def __init__(self):
         # Creación de la ventana principal
-        self.root = ctk.CTk() #Instancia
-        self.root.title("Programación Fácil - Proyecto de bases de datos") #Titulo
-        self.root.iconbitmap(os.path.join(carpeta_imagenes, "")) #Icono
-        self.root.geometry("400x500") #Tamaño de la ventana
-        self.root.resizable(False,False) #Bloqueo de redimensión de ventana
+        self.root = ctk.CTk() # Instancia
+        self.root.title("Programación Fácil - Proyecto de bases de datos") # Título
+        self.root.iconbitmap(os.path.join(carpeta_imagenes, "")) # Icono
+        
+        # Obtener el tamaño de la pantalla
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # Calcular el tamaño de la ventana
+        ventana_width = int(screen_width / 2)
+        ventana_height = int(screen_height / 2)
+
+        # Calcular las coordenadas para centrar la ventana en la pantalla
+        x = int((screen_width - ventana_width) / 2)
+        y = int((screen_height - ventana_height) / 2)
+
+        # Tamaño y posición de la ventana
+        self.root.geometry(f"{ventana_width}x{ventana_height}+{x}+{y}")
+
+        self.root.resizable(False,False) # Bloqueo de redimensionamiento de ventana
 
         # Contenido de la ventana principal
         # Carga de la imagen
-        logo = ctk.CTkImage(
-            light_image=Image.open((os.path.join(carpeta_imagenes, "Syspe.png"))), # Imagen modo claro
-            dark_image=Image.open((os.path.join(carpeta_imagenes, "Syspe.png"))), # Imagen modo oscuro
-            size=(250, 250)) # Tamaño de las imágenes
-        
-        # Etiqueta para mostrar la imagen
-        etiqueta = ctk.CTkLabel(master=self.root,
-                               image=logo,
-                               text="")
-        etiqueta.pack(pady=15)
+        image_path = os.path.join(carpeta_imagenes, "Syspe.png")
+        image = Image.open(image_path)
+        image = image.resize((ventana_width, ventana_height), Image.ANTIALIAS)
+
+        # Convertir la imagen a formato compatible con Tkinter
+        photo = ImageTk.PhotoImage(image)
+
+        # Creación del Label para mostrar la imagen de fondo
+        self.label_fondo = ctk.CTkLabel(self.root, image=photo)
+        self.label_fondo.place(x=0, y=0, relwidth=1, relheight=1)
+
+        # Establecer la imagen como fondo del Label
+        self.label_fondo.image = photo
 
         # Campos de texto
         # Usuario
-        ctk.CTkLabel(self.root, text="Usuario").pack()
-        self.usuario = ctk.CTkEntry(self.root)
+        ctk.CTkLabel(self.label_fondo, text="Usuario").place(x=50, y=50)
+        self.usuario = ctk.CTkEntry(self.label_fondo)
         self.usuario.insert(0, "Ej:Laura")
-        self.usuario.bind("<Button-1>", lambda e: self.usuario.delete(0, 'end'))
-        self.usuario.pack()
+        self.usuario.place(x=150, y=50)
 
         # Contraseña
-        ctk.CTkLabel(self.root, text="Contraseña").pack()
-        self.contrasena = ctk.CTkEntry(self.root)
+        ctk.CTkLabel(self.label_fondo, text="Contraseña").place(x=50, y=80)
+        self.contrasena = ctk.CTkEntry(self.label_fondo)
         self.contrasena.insert(0, "*******")
-        self.contrasena.bind("<Button-1>", lambda e: self.contrasena.delete(0, 'end'))
-        self.contrasena.pack()
+        self.contrasena.place(x=150, y=80)
 
         # Botón de envío
-        ctk.CTkButton(self.root, text="Entrar", command=self.validar).pack(pady=10)
+        ctk.CTkButton(self.label_fondo, text="Entrar", command=self.validar).place(x=150, y=120)
 
         # Bucle de ejecución
         self.root.mainloop()
-        
+
     # Función para validar el login
     def validar(self):
         obtener_usuario = self.usuario.get()
@@ -70,18 +86,18 @@ class Login:
             if hasattr(self, "info_login"):
                 self.info_login.destroy()
             # Crea esta etiqueta siempre que el login sea incorrecto
-            self.info_login = ctk.CTkLabel(self.root, text="Usuario o contraseña incorrectos.")
-            self.info_login.pack()
+            self.info_login = ctk.CTkLabel(self.label_fondo, text="Usuario o contraseña incorrectos.")
+            self.info_login.place(x=50, y=150)
         else:
             # En caso de tener ya un elemento "info_login" (etiqueta) creado, lo borra
             if hasattr(self, "info_login"):
                 self.info_login.destroy()
             # Crea esta etiqueta siempre que el login sea correcto
-            self. info_login = ctk.CTkLabel(self.root, text=f"Hola, {obtener_usuario}. Espere unos instantes...")
-            self.info_login.pack()
+            self.info_login = ctk.CTkLabel(self.label_fondo, text=f"Hola, {obtener_usuario}. Espere unos instantes...")
+            self.info_login.place(x=50, y=150)
             # Se destruye la ventana de login
             self.root.destroy()
-            # Se instanacia la ventana de opciones del programa
+            # Se instancia la ventana de opciones del programa
             ventana_opciones = VentanaOpciones()
 
 class FuncionesPrograma:
