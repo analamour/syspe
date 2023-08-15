@@ -1,0 +1,86 @@
+{% extends 'layout.html' %}
+{% block body%}
+
+<div class = "row">
+    <div class="col-md-12">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{message}}
+    <button type="button" class="btn-close" disabled aria-label="Close"></button>
+    </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+       <div class="card card-body">
+        <form action ="/add_producto" method="POST">
+            <div class="form-group">
+             <label for="exampleFormControlInput1" class="form-label">Codigo del producto</label>
+             <input type="text" name="codigo" placeholder="Se asigna automaticamente" class="form-control" disabled readonly>
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlInput1" class="form-label">Producto</label>
+                <input type="text" name="producto" placeholder="Nombre del producto" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlInput1" class="form-label">Detalles</label>
+                <input type="text" name="detalles" placeholder="Breve descripcion o detalle extra sobre el producto" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlInput1" class="form-label">Precio</label>
+                <input type="text" name="precio" placeholder="Precio del producto" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlInput1" class="form-label">Cantidad</label>
+                <select class="form-select" name = "cantidad" multiple aria-label="multiple select example">
+                    <option selected>Ninguno</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                    <option value="17">17</option>
+                    <option value="18">18</option>
+                    <option value="19">19</option>
+                    <option value="20">20</option>
+                    <option value="21">21</option>
+                    <option value="22">22</option>
+                    <option value="23">23</option>
+                    <option value="24">24</option>
+                    <option value="25">25</option>
+                    <option value="26">26</option>
+                    <option value="27">27</option>
+                    <option value="28">28</option>
+                    <option value="29">29</option>
+                    <option value="30">30</option>
+                  </select>
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlInput1" class="form-label">Rubro</label>
+                <input type="text" name="rubro" placeholder="Vestimenta, accesorios, pequenos electrodomesticos, repuestos, etc" class="form-control">
+            </div>
+            <div class="group">
+                <button type ="submit" clas="btn btn-secondary btn-block">
+                Agregar producto
+                </button>
+            </div>
+        </form>
+       </div>
+    </div>
+    </div>
+</div>
+
+{% endblock %}

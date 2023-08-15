@@ -1,0 +1,17 @@
+
+body {
+    
+    background-image: url('/static/img/Syspe.png');
+    background-image: no-repeat;
+    background-image: center cover;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    opacity:80;
+  
+}
+
+img  {
+    background-position: center;
+  }

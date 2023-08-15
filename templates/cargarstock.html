@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block body%}
+
+
+<div class="col-md-4 offset-md-4">
+<card class="body">
+    <form action ="/agregar_stock_ingresado" method="POST">      
+        <div class=" form-group">
+            <div class="form-group">
+                <div>
+                    <select name="codigoProducto" class="form-select" aria-label="Default select example">
+                        <option selected>Elija el codigo del producto</option>
+                        {% for producto in productos %}
+                            <option value="{{ producto.0 }}">{{ producto.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="exampleInputEmail1" class="form-label">Cantidad ingresada</label>
+                    <input type="text" class="form-control" name="cantidadIngreso">
+                </div>
+            <button type ="submit" class="btn btn-success btn-block">
+                Guardar
+            </button>
+        </div> 
+    </form>
+</card>
+</div>
+
+{% endblock %}
