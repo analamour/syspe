@@ -285,7 +285,7 @@ def consultarPedido():
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM detallesPedido')
     data = cur.fetchall()
-    return render_template('consultarPedidos.html', pedidos = data) 
+    return render_template('consultarPedido.html', pedidos = data) 
 
 
 if __name__ == '__main__':
