@@ -30,13 +30,13 @@
         <tbody>
             {% for producto in productos %}
             <tr>
-                <td class="text-center align-middle">{{ producto.0 }}</td>
-                <td class="text-center align-middle">{{ producto.1 }}</td>
-                <td class="text-center align-middle">{{ producto.2 }}</td>
-                <td class="text-center align-middle">{{ producto.6 }}</td>
-                <td class="text-center align-middle">{{ producto.4 }}</td>
-                <td class="text-center align-middle">{{ producto.3 }}</td>
-                <td class="text-center align-middle">{{ producto.5 }}</td>
+                <td class="text-center align-middle">{{ pedido.0 }}</td>
+                <td class="text-center align-middle">{{ pedido.1 }}</td>
+                <td class="text-center align-middle">{{ pedido.2 }}</td>
+                <td class="text-center align-middle">{{ pedido.6 }}</td>
+                <td class="text-center align-middle">{{ pedido.4 }}</td>
+                <td class="text-center align-middle">{{ pedido.3 }}</td>
+                <td class="text-center align-middle">{{ pedido.5 }}</td>
                 <td class="text-center align-middle"><a href="/edit_producto/{{producto.0}}" class="btn btn-danger"> Editar</a></td>
                 <td class="text-center align-middle"><a href="/delete_producto/{{producto.0}}" class="btn btn-dark btn-delete-product"> Eliminar</a></td>
             </tr>
