@@ -181,35 +181,41 @@ def cargarventa():
 @app.route('/restar_stock_vendido', methods = ['POST'])
 def restar_stock_vendido():
     if request.method == 'POST':
-        cliente_id = request.form['clienteSeleccionado']
-        producto_seleccionado = request.form.get['productoSeleccionado']
-        pedido_id = request.form['codigoProducto']
-        codigoProducto = request.form['codigoProducto']
-        #print("EL CODIGO PRODUCTO ES ",codigoProducto)
-        cantVentaForm = request.form['cantidadVendido']
+        cliente_id = request.form.get('clienteSeleccionado')
+        producto_seleccionado = request.form.get('productoSeleccionado')
+        cantVentaForm = request.form.get('cantidadVendido')
+        codigoProducto = request.form.get('codigoProducto')
+
+        # Validaciones básicas
+        if not all([cliente_id, producto_seleccionado, cantVentaForm, codigoProducto]):
+            flash('Faltan datos en el formulario.')
+            return redirect(url_for('cargarventa'))
+
         cur = mysql.connection.cursor()
         cur.execute(f"select stockDisponible from productos where id={codigoProducto}")
         cantidadDisponibleActualTupla = cur.fetchall()
         cantidadDisponibleActual = int(cantidadDisponibleActualTupla[0][0])
         cantidadVendidaForm = int(cantVentaForm)
-        if cantidadVendidaForm > cantidadDisponibleActual:
-            flash(f'La cantidad ingresada supera al stock disponible')
-        else:
-            disponible = cantidadDisponibleActual - cantidadVendidaForm
-            cur.execute(f"select stockVendido from productos where id={codigoProducto}")
-            cantidadVendidaActual = cur.fetchall()
-            vendido = int(cantidadVendidaActual[0][0]) + int(cantVentaForm)
-            disponible = str(disponible)
-            vendido = str(vendido)
-            cur.execute("""
-                UPDATE productos
-                SET stockDisponible =%s,
-                stockVendido = %s
-                WHERE id =%s;
-            """,  (disponible, vendido, codigoProducto))   
-            mysql.connection.commit()
-            flash('Stock actualizado')
-        return redirect(url_for('inventario'))
+
+    if cantidadVendidaForm > cantidadDisponibleActual:
+        flash(f'La cantidad ingresada supera al stock disponible')
+    else:
+        disponible = cantidadDisponibleActual - cantidadVendidaForm
+        cur.execute(f"select stockVendido from productos where id={codigoProducto}")
+        cantidadVendidaActual = cur.fetchall()
+        vendido = int(cantidadVendidaActual[0][0]) + int(cantVentaForm)
+        disponible = str(disponible)
+        vendido = str(vendido)
+        cur.execute("""
+            UPDATE productos
+            SET stockDisponible =%s,
+            stockVendido = %s
+            WHERE id =%s;
+        """,  (disponible, vendido, codigoProducto))   
+        mysql.connection.commit()
+        flash('Stock actualizado')
+            
+    return redirect(url_for('inventario'))
 
 @app.route("/cargarstock")
 def cargarstock():
