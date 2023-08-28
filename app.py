@@ -182,7 +182,8 @@ def cargarventa():
 def restar_stock_vendido():
     if request.method == 'POST':
         cliente_id = request.form['clienteSeleccionado']
-        producto_id = request.form['productoSeleccionado']
+        producto_seleccionado = request.form.get['productoSeleccionado']
+        pedido_id = request.form['codigoProducto']
         codigoProducto = request.form['codigoProducto']
         #print("EL CODIGO PRODUCTO ES ",codigoProducto)
         cantVentaForm = request.form['cantidadVendido']
@@ -278,15 +279,16 @@ def crear_pedido():
         cur.close()
 
         flash('Pedido creado con éxito!')
-        return redirect(url_for('Index'))  # O redirige a donde quieras
+        return redirect(url_for('Index'))  
 
 @app.route("/consultarPedido")
 def consultarPedido():
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM detallesPedido')
     data = cur.fetchall()
-    return render_template('consultarPedido.html', pedidos = data) 
+    return render_template('consultarPedidos.html', pedidos = data) 
 
 
+  
 if __name__ == '__main__':
     app.run(port = 3000, debug = True)

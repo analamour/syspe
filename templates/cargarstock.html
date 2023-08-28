@@ -15,9 +15,9 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div>
-                    <label for="exampleInputEmail1" class="form-label">Cantidad ingresada</label>
-                    <input type="text" class="form-control" name="cantidadIngreso">
+                <div class="form-group">
+                    <label for="cantidadInput" class="form-label">Cantidad</label>
+                    <input type="number" class="form-control" id="cantidadInput" name="cantidad" min="1" placeholder="Introduce una cantidad">
                 </div>
             <button type ="submit" class="btn btn-success btn-block">
                 Guardar
