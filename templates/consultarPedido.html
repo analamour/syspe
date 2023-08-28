@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+{% block body%}
+
+<div class = "row">
+    <div class="col-md-12">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{message}}
+    <button type="button" class="btn-close" disabled aria-label="Close"></button>
+    </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+    <table class="table table-striped table-hover table-bordered bg-white table-sm">
+        <thead>
+            <tr>
+                <td class="text-center align-middle">Codigo Articulo</td>
+                <td class="text-center align-middle">Producto</td>
+                <td class="text-center align-middle">Detalle</td>
+                <td class="text-center align-middle">Precio</td>
+                <td class="text-center align-middle">Stock disponible</td>
+                <td class="text-center align-middle">Stock vendido</td>
+                <td class="text-center align-middle">Rubro</td>
+            </tr>
+        </thead>
+    
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td class="text-center align-middle">{{ producto.0 }}</td>
+                <td class="text-center align-middle">{{ producto.1 }}</td>
+                <td class="text-center align-middle">{{ producto.2 }}</td>
+                <td class="text-center align-middle">{{ producto.6 }}</td>
+                <td class="text-center align-middle">{{ producto.4 }}</td>
+                <td class="text-center align-middle">{{ producto.3 }}</td>
+                <td class="text-center align-middle">{{ producto.5 }}</td>
+                <td class="text-center align-middle"><a href="/edit_producto/{{producto.0}}" class="btn btn-danger"> Editar</a></td>
+                <td class="text-center align-middle"><a href="/delete_producto/{{producto.0}}" class="btn btn-dark btn-delete-product"> Eliminar</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="container">
+        <td class="text-center align-middle"><a href="/cargarventa" class="btn btn-danger"> Cargar venta</a></td>
+        <td class="text-center align-middle"><a href="/cargarstock" class="btn btn-danger"> Agregar stock</a></td>
+    </div>
+</div>
+</div>
+
+{% endblock %}

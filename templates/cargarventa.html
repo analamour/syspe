@@ -1,13 +1,18 @@
 {% extends 'layout.html' %}
 {% block body%}
 
-
 <div class="col-md-4 offset-md-4">
 <card class="body">
     <form action ="/restar_stock_vendido" method="POST">      
         <div class=" form-group">
             <div class="form-group">
                 <div>
+                    <select name="clienteSeleccionado" class="form-select">
+                        <option selected>Seleccione un cliente</option>
+                        {% for cliente in clientes %}
+                            <option value="{{ cliente[0] }}">{{ cliente[1] }}</option>
+                        {% endfor %}
+                    </select>                    
                     <select name="codigoProducto" class="form-select" aria-label="Default select example">
                         <option selected>Elija el codigo del producto</option>
                         {% for producto in productos %}
@@ -15,9 +20,9 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div>
-                    <label for="exampleInputEmail1" class="form-label">Cantidad vendida</label>
-                    <input type="text" class="form-control" name="cantidadVendido">
+                <div class="form-group">
+                    <label for="cantidadInput" class="form-label">Cantidad</label>
+                    <input type="number" class="form-control" id="cantidadInput" name="cantidad" min="1" placeholder="Introduce una cantidad">
                 </div>
             <button action="validarCantidadVenta" type ="submit" class="btn btn-success btn-block">
                 Guardar

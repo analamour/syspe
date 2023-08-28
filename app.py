@@ -168,14 +168,21 @@ def update_producto(id):
 @app.route("/cargarventa")
 def cargarventa():
     cur = mysql.connection.cursor()
-    cur.execute ('SELECT id, producto FROM productos where stockDisponible > 0')
-    data = cur.fetchall()
-    #print(data[0])
-    return render_template('cargarventa.html', productos = data)
+    
+    cur.execute('SELECT id, razonsocial FROM clientes')  # Obteniendo clientes
+    clientes_data = cur.fetchall()
+
+    cur.execute('SELECT id, producto FROM productos where stockDisponible > 0')
+    productos_data = cur.fetchall()
+
+    return render_template('cargarventa.html', productos=productos_data, clientes=clientes_data)
+
 
 @app.route('/restar_stock_vendido', methods = ['POST'])
 def restar_stock_vendido():
     if request.method == 'POST':
+        cliente_id = request.form['clienteSeleccionado']
+        producto_id = request.form['productoSeleccionado']
         codigoProducto = request.form['codigoProducto']
         #print("EL CODIGO PRODUCTO ES ",codigoProducto)
         cantVentaForm = request.form['cantidadVendido']
@@ -230,6 +237,55 @@ def agregar_stock_ingresado():
         flash(f'Stock actualizado')
         return redirect(url_for('inventario'))
 
+
+
+@app.route('/clienteSeleccionado', methods=['GET', 'POST'])
+def clienteSeleccionado():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, nombre FROM clientes")
+    clientes = cur.fetchall()
+    cur.close()
+    return render_template('listadoCliente.html', clientes=clientes)
+
+@app.route("/seleccionarpoducto")
+def seleccionarproducto():
+    cur = mysql.connection.cursor()
+    # Obtener lista de productos
+    cur.execute('SELECT id, nombre_producto FROM productos')
+    productos = cur.fetchall()
+    return render_template('inventario.html', productos=productos)
+
+
+
+@app.route('/crear_pedido', methods=['POST'])
+def crear_pedido():
+    if request.method == 'POST':
+        cliente_id = request.form['cliente_id']
+        productos_id = request.form.getlist('producto_id[]')
+        cantidades = request.form.getlist('cantidad[]')
+
+        cur = mysql.connection.cursor()
+
+        # Crear el pedido primero
+        cur.execute('INSERT INTO Pedidos (cliente_id, fecha_pedido) VALUES (%s, NOW())', (cliente_id,))
+        pedido_id = cur.lastrowid  # ID del pedido creado
+
+        # Insertar cada producto en DetallesPedido
+        for producto_id, cantidad in zip(productos_id, cantidades):
+            cur.execute('INSERT INTO DetallesPedido (pedido_id, producto_id, cantidad) VALUES (%s, %s, %s)', (pedido_id, producto_id, cantidad))
+
+        mysql.connection.commit()
+        cur.close()
+
+        flash('Pedido creado con éxito!')
+        return redirect(url_for('Index'))  # O redirige a donde quieras
+
+@app.route("/consultarPedido")
+def consultarPedido():
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM detallesPedido')
+    data = cur.fetchall()
+    return render_template('consultarPedidos.html', pedidos = data) 
 
 
 if __name__ == '__main__':
