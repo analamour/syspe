@@ -138,17 +138,18 @@ def get_producto(id):
     cur.execute ('SELECT * FROM productos WHERE id = %s', (id))
     data = cur.fetchall()
     print(data[0])
-    return render_template('edit-product.html', producto = data[0])
+    return render_template('edit-product.html', productos = data[0])
 
 @app.route('/update_producto/<id>', methods = ['POST'])
 def update_producto(id):
     if request.method == 'POST':
         producto = request.form['producto']
-        detalle = request.form['detalle']
+        comentario = request.form['comentario']
         precio = request.form['precio']
         disponible = request.form['stockDisponible']
         vendido = request.form['stockVendido']
         rubro = request.form['rubro']
+        precio = request.form ['precio']
         cur = mysql.connection.cursor()
         cur.execute("""
             UPDATE productos
@@ -157,9 +158,10 @@ def update_producto(id):
                 precio = %s,
                 stockDisponible = %s,
                 stockVendido = %s,
-                rubro = %s
+                rubro = %s,
+                precio =%s
             WHERE id = %s
-        """,  (producto, detalle, precio, disponible, vendido, rubro, id))   
+        """,  (producto, comentario, precio, disponible, vendido, rubro, id))   
   
         mysql.connection.commit()
         flash('Producto modificado')
@@ -178,44 +180,42 @@ def cargarventa():
     return render_template('cargarventa.html', productos=productos_data, clientes=clientes_data)
 
 
-@app.route('/restar_stock_vendido', methods = ['POST'])
+@app.route('/restar_stock_vendido', methods=['POST'])
 def restar_stock_vendido():
     if request.method == 'POST':
         cliente_id = request.form.get('clienteSeleccionado')
-        producto_seleccionado = request.form.get('productoSeleccionado')
+        producto_seleccionado = request.form.get('codigoProducto')  
         cantVentaForm = request.form.get('cantidadVendido')
         codigoProducto = request.form.get('codigoProducto')
 
-        # Validaciones básicas
         if not all([cliente_id, producto_seleccionado, cantVentaForm, codigoProducto]):
             flash('Faltan datos en el formulario.')
             return redirect(url_for('cargarventa'))
 
         cur = mysql.connection.cursor()
-        cur.execute(f"select stockDisponible from productos where id={codigoProducto}")
+        cur.execute("select stockDisponible from productos where id=%s", (codigoProducto,))
         cantidadDisponibleActualTupla = cur.fetchall()
         cantidadDisponibleActual = int(cantidadDisponibleActualTupla[0][0])
         cantidadVendidaForm = int(cantVentaForm)
 
-    if cantidadVendidaForm > cantidadDisponibleActual:
-        flash(f'La cantidad ingresada supera al stock disponible')
-    else:
-        disponible = cantidadDisponibleActual - cantidadVendidaForm
-        cur.execute(f"select stockVendido from productos where id={codigoProducto}")
-        cantidadVendidaActual = cur.fetchall()
-        vendido = int(cantidadVendidaActual[0][0]) + int(cantVentaForm)
-        disponible = str(disponible)
-        vendido = str(vendido)
-        cur.execute("""
-            UPDATE productos
-            SET stockDisponible =%s,
-            stockVendido = %s
-            WHERE id =%s;
-        """,  (disponible, vendido, codigoProducto))   
-        mysql.connection.commit()
-        flash('Stock actualizado')
-            
-    return redirect(url_for('inventario'))
+        if cantidadVendidaForm > cantidadDisponibleActual:
+            flash(f'La cantidad ingresada supera al stock disponible')
+        else:
+            disponible = cantidadDisponibleActual - cantidadVendidaForm
+            cur.execute("select stockVendido from productos where id=%s", (codigoProducto,))
+            cantidadVendidaActual = cur.fetchall()
+            vendido = int(cantidadVendidaActual[0][0]) + int(cantVentaForm)
+            cur.execute("""
+                UPDATE productos
+                SET stockDisponible =%s,
+                stockVendido = %s
+                WHERE id =%s;
+            """, (disponible, vendido, codigoProducto))
+            mysql.connection.commit()
+            flash('Stock actualizado')
+
+        return redirect(url_for('inventario'))
+
 
 @app.route("/cargarstock")
 def cargarstock():
