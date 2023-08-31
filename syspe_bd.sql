@@ -45,13 +45,13 @@ INSERT INTO `clientes` VALUES (4,'Florencia Rodriguez y asoc.','Magia Crochet','
 UNLOCK TABLES;
 
 --
--- Table structure for table `productos`
+-- Table structure for table `articulo`
 --
 
-DROP TABLE IF EXISTS `productos`;
+DROP TABLE IF EXISTS `articulo`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `productos` (
+CREATE TABLE `articulo` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `producto` varchar(100) DEFAULT NULL,
   `comentario` varchar(255) DEFAULT NULL,
@@ -63,13 +63,13 @@ CREATE TABLE `productos` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `productos`
+-- Dumping data for table `articulo`
 --
 
-LOCK TABLES `productos` WRITE;
-/*!40000 ALTER TABLE `productos` DISABLE KEYS */;
-INSERT INTO `productos` VALUES (4,'Pantalon Cardo','Pantalon Panal, algodón con bolsillos para atar.',6,20,'Pantalones'),(5,'Palazo Zaras','Palazo sastrero con bolsillos y elástico cintura atrás',0,4,'Pantalones'),(6,'Remera Print','Remera viscosa estampada espalda en u .',0,9,'Remeras');
-/*!40000 ALTER TABLE `productos` ENABLE KEYS */;
+LOCK TABLES `articulo` WRITE;
+/*!40000 ALTER TABLE `articulo` DISABLE KEYS */;
+INSERT INTO `articulo` VALUES (4,'Pantalon Cardo','Pantalon Panal, algodón con bolsillos para atar.',6,20,'Pantalones'),(5,'Palazo Zaras','Palazo sastrero con bolsillos y elástico cintura atrás',0,4,'Pantalones'),(6,'Remera Print','Remera viscosa estampada espalda en u .',0,9,'Remeras');
+/*!40000 ALTER TABLE `articulo` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

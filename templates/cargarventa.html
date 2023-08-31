@@ -14,11 +14,12 @@
                             {% endfor %}
                         </select>
 
-                        <select name="codigoProducto" id="productoSelect" class="form-select">
+                        <select name="codigoProducto" id="articuloSelect" class="form-select">
                             <option selected>Elija el codigo del producto</option>
-                            {% for producto in productos %}
-                                <option value="{{ producto[0] }}" data-price="{{ producto[2] }}">{{ producto[1] }}</option>
+                            {% for producto in articulo %}
+                            <option value="{{ producto[0] }}" data-price="{{ producto[2] }}">{{ producto[1] }}</option>
                             {% endfor %}
+
                         </select>
                     </div>
 
@@ -36,10 +37,10 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        var productoSelect = document.getElementById("productoSelect");
+        var articuloelect = document.getElementById("articuloelect");
         var precioDiv = document.getElementById("precioProducto");
 
-        productoSelect.addEventListener("change", function() {
+        articuloelect.addEventListener("change", function() {
             var selectedOption = this.options[this.selectedIndex];
             var precio = selectedOption.getAttribute("data-price");
             precioDiv.textContent = "Precio: $" + precio;

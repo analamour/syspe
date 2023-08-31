@@ -1,0 +1,13 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<h2>Editar Pedido</h2>
+<form action="/update_pedido/{{ pedido.id }}" method="post">
+    <div>
+        <label for="id_cliente">ID Cliente:</label>
+        <input type="text" id="id_cliente" name="id_cliente" value="{{ pedido.id_cliente }}">
+    </div>
+    <!-- Puedes añadir otros campos aquí, como fecha, detalles, etc. -->
+    <input type="submit" value="Actualizar Pedido">
+</form>
+{% endblock %}

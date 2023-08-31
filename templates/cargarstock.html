@@ -8,11 +8,12 @@
         <div class=" form-group">
             <div class="form-group">
                 <div>
-                    <select name="codigoProducto" class="form-select" aria-label="Default select example">
+                    <select name="codigoarticulo" class="form-select" aria-label="Default select example">
                         <option selected>Elija el codigo del producto</option>
-                        {% for producto in productos %}
-                            <option value="{{ producto.0 }}">{{ producto.1 }}</option>
+                        {% for item in articulo %}
+                            <option value="{{ item.0 }}">{{ item.1 }}</option>
                         {% endfor %}
+
                     </select>
                 </div>
                 <div class="form-group">
