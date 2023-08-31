@@ -22,3 +22,16 @@ if(btnDeleteProduct){
     });
    });
 }
+
+
+$(document).ready(function() {
+    $('#clientes').change(function() {
+        var clienteId = $(this).val();
+        $.get('/get_pedidos/' + clienteId, function(data) {
+            $('#pedidos').empty();
+            data.forEach(function(pedido) {
+                $('#pedidos').append('<option value="' + pedido.id + '">' + pedido.descripcion + '</option>');
+            });
+        });
+    });
+});

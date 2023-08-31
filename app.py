@@ -183,7 +183,11 @@ def restar_stock_vendido():
             flash('Faltan datos en el formulario.')
             return redirect(url_for('cargarventa'))
         cur = mysql.connection.cursor()
-        cur.execute("SELECT stockDisponible, stockVendido FROM articulo WHERE id=%s", (codigoarticulo,))
+        cur.execute("SELECT stockDisponible, stockVendido FROM articulo WHERE id_articulo=%s", (codigoarticulo,))
+        cantidadDisponibleActual, cantidadVendidaActual = cur.fetchone()
+        print("Stock Disponible actual:", cantidadDisponibleActual)
+        print("Stock Vendido actual:", cantidadVendidaActual)
+
         cantidadDisponibleActual, cantidadVendidaActual = cur.fetchone()
         cantidadVendidaForm = int(cantVentaForm)
         if cantidadVendidaForm > cantidadDisponibleActual:
@@ -195,11 +199,13 @@ def restar_stock_vendido():
                 UPDATE articulo
                 SET stockDisponible =%s,
                 stockVendido = %s
-                WHERE id =%s;
+                WHERE id_articulo =%s;
             """, (disponible, vendido, codigoarticulo))
+            
             mysql.connection.commit()
             flash('Stock actualizado')
         return redirect(url_for('inventario'))
+    
 
 @app.route("/consultarPedido")
 def consultarPedido():
@@ -211,11 +217,15 @@ def consultarPedido():
 @app.route("/edit_pedido/<id>")
 def edit_pedido(id):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM Pedidos WHERE id = %s', (id,))
-    pedido_data = cur.fetchall()
-    cur.execute('SELECT * FROM DetallesPedido WHERE pedido_id = %s', (id,))
-    detalles_pedido = cur.fetchall()
-    return render_template('edit_pedido.html', pedido=pedido_data[0])
+    cur.execute('SELECT * FROM Pedidos WHERE id_pedido = %s', (id,))
+    pedido_data = cur.fetchone()
+
+    cur.execute('SELECT id_cliente, razonsocial, nombrefantsia FROM Clientes')  # Asumiendo que tu tabla de clientes se llama 'Clientes' y tiene las columnas 'id' y 'nombre'.
+    clientes = cur.fetchall()
+
+    return render_template('edit-pedido.html', pedido=pedido_data, clientes=clientes)
+
+
 
 @app.route('/update_pedido/<id>', methods=['POST'])
 def update_pedido(id):
@@ -226,11 +236,12 @@ def update_pedido(id):
         cur.execute("""
             UPDATE Pedidos
             SET id_cliente = %s
-            WHERE id = %s
+            WHERE id_pedido = %s
         """, (id_cliente, id))
         mysql.connection.commit()
         flash('Pedido actualizado correctamente!')
         return redirect(url_for('consultarPedido'))
+
 
 @app.route('/agregar_stock_ingresado', methods=['POST'])
 def agregar_stock_ingresado():
@@ -251,7 +262,13 @@ def agregar_stock_ingresado():
         flash('Stock actualizado')
         return redirect(url_for('inventario'))
 
-        
+@app.route('/get_pedidos/<cliente_id>', methods=['GET'])
+def get_pedidos(cliente_id):
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM Pedidos WHERE cliente_id = %s', (cliente_id,))
+    pedidos = cur.fetchall()
+    return jsonify(pedidos)
+       
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)
