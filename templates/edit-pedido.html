@@ -4,7 +4,7 @@
 <h2>Editar Pedido</h2>
 <form action="/update_pedido/{{ pedido.id_pedido }}" method="post">
     <div>
-        <select id="clientes" name="clienteSeleccionado" class="form-select">
+        <select name="clienteSeleccionado" id="clienteSeleccionado" class="form-select">
             <option selected>Seleccione un cliente</option>
             {% for cliente in clientes %}
                 <option value="{{ cliente[0] }}">{{ cliente[1] }}</option>

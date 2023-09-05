@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mysqldb import MySQL
+from decimal import Decimal
+
 
 app = Flask(__name__)
 
@@ -210,9 +212,26 @@ def restar_stock_vendido():
 @app.route("/consultarPedido")
 def consultarPedido():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM detallesPedido')
+    cur.execute('''
+        SELECT 
+            p.id_pedido, 
+            p.fecha_pedido,
+            p.precio_unitario,
+            p.precio_final,
+            c.razonsocial,
+            d.cantidad,
+            d.subtotal,
+            a.producto,
+            a.id_articulo
+        FROM pedidos p
+        JOIN detallesPedido d ON p.id_pedido = d.id_pedido
+        JOIN clientes c ON p.id_cliente = c.id_cliente
+        JOIN articulo a ON d.id_articulo = a.id_articulo
+    ''')
     data = cur.fetchall()
-    return render_template('consultarPedido.html', pedidos = data)
+    return render_template('consultarPedido.html', pedidos=data)
+
+
 
 @app.route("/edit_pedido/<id>")
 def edit_pedido(id):
@@ -262,13 +281,70 @@ def agregar_stock_ingresado():
         flash('Stock actualizado')
         return redirect(url_for('inventario'))
 
-@app.route('/get_pedidos/<cliente_id>', methods=['GET'])
-def get_pedidos(cliente_id):
+@app.route('/get_pedidos/<int:id_cliente>')
+def get_pedidos(id_cliente):
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM Pedidos WHERE cliente_id = %s', (cliente_id,))
+    cur.execute('SELECT * FROM pedido WHERE id_cliente = %s', [id_cliente])
     pedidos = cur.fetchall()
     return jsonify(pedidos)
-       
+
+@app.route('/crear_pedido', methods=['POST'])
+def crear_pedido():
+    if request.method == 'POST':
+        cliente_id = request.form.get('cliente_id')
+        producto_ids = request.form.getlist('producto_id[]')
+        cantidades = request.form.getlist('cantidad[]')
+
+        # Validaciones básicas
+        if not cliente_id or not producto_ids or not cantidades:
+            flash('Faltan datos en el formulario.')
+            return redirect(url_for('cargarventa'))
+
+        if len(producto_ids) != len(cantidades):
+            flash('La cantidad de productos y cantidades no coincide.')
+            return redirect(url_for('cargarventa'))
+
+        try:
+            cur = mysql.connection.cursor()
+            
+            # Crear un nuevo pedido
+            cur.execute("""
+                INSERT INTO pedidos (fecha_pedido, precio_unitario, precio_final, id_cliente) 
+                VALUES (NOW(), 0, 0, %s);
+            """, (cliente_id,))
+            
+            pedido_id = cur.lastrowid  # Obtener el ID del último registro insertado
+            
+            total_pedido = 0
+            for producto_id, cantidad in zip(producto_ids, cantidades):
+                cur.execute("SELECT precio FROM articulo WHERE id_articulo=%s", (producto_id,))
+                precio_unitario = cur.fetchone()[0]
+                subtotal = precio_unitario * Decimal(cantidad)
+                total_pedido += subtotal
+                
+                # Insertar en detallesPedido
+                cur.execute("""
+                    INSERT INTO detallesPedido (id_pedido, id_articulo, cantidad, subtotal) 
+                    VALUES (%s, %s, %s, %s);
+                """, (pedido_id, producto_id, cantidad, subtotal))
+                
+            # Actualizar el precio total del pedido
+            cur.execute("""
+                UPDATE pedidos 
+                SET precio_final = %s 
+                WHERE id_pedido = %s;
+            """, (total_pedido, pedido_id))
+
+            mysql.connection.commit()
+            flash('Pedido creado con éxito.')
+            
+        except Exception as e:
+            # Aquí se maneja la excepción, en caso de que algo falle.
+            mysql.connection.rollback()  # Deshacer los cambios en caso de un error
+            flash('Hubo un error al crear el pedido: ' + str(e))
+
+        return redirect(url_for('consultarPedido'))
+      
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)

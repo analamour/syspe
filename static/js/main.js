@@ -24,14 +24,20 @@ if(btnDeleteProduct){
 }
 
 
-$(document).ready(function() {
-    $('#clientes').change(function() {
+
+
+$(document).ready(function() {  // Asegurarse de que el código se ejecute después de que se haya cargado el DOM.
+    $('#clienteSeleccionado').change(function() {
         var clienteId = $(this).val();
-        $.get('/get_pedidos/' + clienteId, function(data) {
-            $('#pedidos').empty();
-            data.forEach(function(pedido) {
-                $('#pedidos').append('<option value="' + pedido.id + '">' + pedido.descripcion + '</option>');
+        if (clienteId) {  // Solo hacer la solicitud si hay un clienteId seleccionado.
+            $.get('/get_pedidos/' + clienteId, function(data) {
+                $('#pedidos').empty();  // Vaciar el menú desplegable de pedidos antes de llenarlo nuevamente.
+                data.forEach(function(pedido) {
+                    // Usar id_pedido como valor y fecha_pedido como descripción en el menú desplegable.
+                    $('#pedidos').append('<option value="' + pedido.id_pedido + '">' + pedido.fecha_pedido + '</option>');
+                });
             });
-        });
+        }
     });
 });
+

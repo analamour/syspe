@@ -20,36 +20,30 @@
                     <td class="text-center align-middle">Cliente</td>
                     <td class="text-center align-middle">Nº de Pedido</td>
                     <td class="text-center align-middle">Fecha</td>
-                    <td class="text-center align-middle">Articulo</td>
-                    <td class="text-center align-middle">Cantidad</td>
-                    <td class="text-center align-middle">Precio</td>
+                    <td class="text-center align-middle">Precio Unitario</td>
+                    <td class="text-center align-middle">Precio Final</td>
                     <td class="text-center align-middle">Editar</td>
                     <td class="text-center align-middle">Eliminar</td>
                 </tr>
             </thead>
+
             <tbody>
                 {% for pedido in pedidos %}
-                <tr><td class="text-center align-middle">{{ pedido.cliente_nombre }}</td>
-                    <td class="text-center align-middle">{{ pedido.pedido_id }}</td>
+                <tr> 
+                    <td class="text-center align-middle">{{ pedido.razonsocial }}</td>
+                    <td class="text-center align-middle">{{ pedido.id_articulo }}</td>
                     <td class="text-center align-middle">{{ pedido.fecha_pedido }}</td>
+                    <td class="text-center align-middle">{{ pedido.precio_unitario }}</td>
+                    <td class="text-center align-middle">{{ pedido.precio_final }}</td>
                     
-                    <td class="text-center align-middle">{{ pedido.0 }}</td>
-                    <td class="text-center align-middle">{{ pedido.1 }}</td>
-                    <td class="text-center align-middle">{{ pedido.2 }}</td>
-                    <td class="text-center align-middle">{{ pedido.3 }}</td>
-                    <td class="text-center align-middle">{{ pedido.4 }}</td>
-                    <td class="text-center align-middle">{{ pedido.5 }}</td>
-                    <td class="text-center align-middle"><a href="/edit_pedido/{{pedido.0}}" class="btn btn-danger">Editar</a></td>
-                    <td class="text-center align-middle"><a href="/delete_pedido/{{pedido.0}}" class="btn btn-dark btn-delete-product">Eliminar</a></td>
-                </tr>
+                    <td class="text-center align-middle"><a href="/edit_articulo/{{pedido.id_articulo}}" class="btn btn-danger"> Editar</a></td>
+                    <td class="text-center align-middle"><a href="/delete_articulo/{{pedido.id_articulo}}" class="btn btn-dark btn-delete-product"> Eliminar
+
                 {% endfor %}
             </tbody>
         </table>
-
         <div class="container">
-            <a href="/cargarventa" class="btn btn-danger">Consultar Pedido</a>
-            <a href="#" class="btn btn-danger">Modificar</a>
-            <a href="#" class="btn btn-danger">Anular</a>
+            <a href="/consultarPedido" class="btn btn-danger">Consultar Pedido</a>
         </div>
     </div>
 </div>

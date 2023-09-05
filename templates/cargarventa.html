@@ -1,50 +1,101 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<div class="col-md-4 offset-md-4">
+<div class="col-md-8 offset-md-2">
     <card class="body">
-        <form action="/restar_stock_vendido" method="POST">
+        <form action="/crear_pedido" method="POST">
             <div class="form-group">
-                <div class="form-group">
-                    <div>
-                        <select name="clienteSeleccionado" class="form-select">
-                            <option selected>Seleccione un cliente</option>
-                            {% for cliente in clientes %}
-                                <option value="{{ cliente[0] }}">{{ cliente[1] }}</option>
-                            {% endfor %}
-                        </select>
-
-                        <select name="codigoProducto" id="articuloSelect" class="form-select">
-                            <option selected>Elija el codigo del producto</option>
-                            {% for producto in articulo %}
+                <label for="clienteSeleccionado">Seleccione un cliente:</label>
+                <select name="cliente_id" class="form-select" required>
+                    <option value="">Seleccione un cliente</option>
+                    {% for cliente in clientes %}
+                        <option value="{{ cliente[0] }}">{{ cliente[1] }}</option>
+                    {% endfor %}
+                </select> 
+            </div>
+            
+            <!-- Sección para productos -->
+            <div class="form-group" id="productosContainer">
+                <div class="producto-row">
+                    <select name="producto_id[]" class="form-select articuloSelect" required>
+                        <option value="">Elija un producto</option>
+                        {% for producto in articulo %}
                             <option value="{{ producto[0] }}" data-price="{{ producto[2] }}">{{ producto[1] }}</option>
-                            {% endfor %}
-
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="cantidadInput" class="form-label">Cantidad</label>
-                        <input type="number" class="form-control" id="cantidadInput" name="cantidad" min="1" placeholder="Introduce una cantidad">
-                    </div>
-                    <div id="precioProducto">Precio: $0.00</div>
-                    <button type="submit" class="btn btn-success btn-block">Guardar</button>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="cantidad[]" class="form-control cantidadInput" min="1" placeholder="Cantidad" required>
                 </div>
             </div>
+            <button type="button" id="agregarProducto" class="btn btn-primary mt-2">Agregar otro producto</button>
+            <div class="form-group mt-3">
+                <label>Total Pedido:</label><span id="totalPedido">$0.00</span>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-block mt-2">Guardar</button>
         </form>
     </card>
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        var articuloelect = document.getElementById("articuloelect");
-        var precioDiv = document.getElementById("precioProducto");
+    const cantidades = document.querySelectorAll(".cantidadInput");
+    cantidades.forEach(function(cantidad) {
+        cantidad.addEventListener("input", calcularTotal);
+    });
+    
+    calcularTotal();  // Calcula el total inicial
+});
 
-        articuloelect.addEventListener("change", function() {
-            var selectedOption = this.options[this.selectedIndex];
-            var precio = selectedOption.getAttribute("data-price");
-            precioDiv.textContent = "Precio: $" + precio;
+function calcularTotal() {
+    let total = 0;
+    const cantidades = document.querySelectorAll(".cantidadInput");
+    cantidades.forEach(function(cantidad) {
+        total += parseFloat(cantidad.getAttribute("data-precio")) * parseFloat(cantidad.value);
+    });
+    
+    document.getElementById("totalPedido").innerText = "$" + total.toFixed(2);
+}
+
+    document.addEventListener("DOMContentLoaded", function() {
+    
+        function updatePrecio(articuloSelect, cantidadInput) {
+            var selectedOption = articuloSelect.options[articuloSelect.selectedIndex];
+            var precioUnitario = parseFloat(selectedOption.getAttribute("data-price"));
+            var cantidad = parseFloat(cantidadInput.value) || 0;
+    
+            var precioTotal = precioUnitario * cantidad;
+            document.getElementById("totalPedido").innerText = "$" + precioTotal.toFixed(2);
+        }
+    
+        const articuloSelects = document.querySelectorAll(".articuloSelect");
+        const cantidadInputs = document.querySelectorAll(".cantidadInput");
+    
+        articuloSelects.forEach((select, index) => {
+            select.addEventListener("change", () => updatePrecio(select, cantidadInputs[index]));
+            cantidadInputs[index].addEventListener("input", () => updatePrecio(select, cantidadInputs[index]));
         });
     });
+
+    document.getElementById("agregarProducto").addEventListener("click", function() {
+    const productosContainer = document.getElementById("productosContainer");
+    const productoRow = document.querySelector(".producto-row").cloneNode(true);  // clonamos una fila existente
+
+    // Reiniciamos los valores en la fila clonada
+    productoRow.querySelector(".articuloSelect").value = "";
+    productoRow.querySelector(".cantidadInput").value = "";
+
+    // Agregamos event listeners a los nuevos elementos
+    productoRow.querySelector(".articuloSelect").addEventListener("change", function() {
+        updatePrecio(this, productoRow.querySelector(".cantidadInput"));
+    });
+    productoRow.querySelector(".cantidadInput").addEventListener("input", function() {
+        updatePrecio(productoRow.querySelector(".articuloSelect"), this);
+    });
+
+    // Finalmente, añadimos la nueva fila al contenedor
+    productosContainer.appendChild(productoRow);
+});
+
 </script>
+
 {% endblock %}
