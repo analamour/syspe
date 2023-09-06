@@ -1,48 +1,58 @@
 {% extends 'layout.html' %}
 {% block body%}
 
-<div class = "row">
+<div class="row">
     <div class="col-md-12">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-    {{message}}
-    <button type="button" class="btn-close" disabled aria-label="Close"></button>
-    </div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="btn-close" disabled aria-label="Close"></button>
+        </div>
         {% endfor %}
         {% endif %}
         {% endwith %}
 
        <div class="card card-body">
-        <form action ="/add_cliente" method="POST">
+        <form action="/add_cliente" method="POST" onsubmit="return validateForm()">
             <div class="form-group">
-             <input type="text" name="razonsocial" placeholder="Razon Social" class="form-control">
+                <input type="text" name="razonsocial" placeholder="Razon Social" class="form-control" required>
             </div>
             <div class="form-group">
-                <input type="text" name="nombrefantsia" placeholder="Nombre de Fantasía" class="form-control">
+                <input type="text" name="nombrefantsia" placeholder="Nombre de Fantasía" class="form-control" required>
             </div>
             <div class="form-group">
-                <input type="text" name="telefono" placeholder="Telefono" class="form-control">
+                <input type="number" name="telefono" placeholder="Telefono" class="form-control" required pattern="\d+">
             </div>
             <div class="form-group">
-                <input type="text" name="cuit" placeholder="CUIT" class="form-control">
+                <input type="number" name="cuit" placeholder="CUIT" class="form-control" required pattern="\d+">
             </div>
             <div class="form-group">
-                <input type="text" name="direccion" placeholder="Direccion" class="form-control">
+                <input type="text" name="direccion" placeholder="Direccion" class="form-control" required>
             </div>
             <div class="form-group">
-                <input type="text" name="mail" placeholder="Email" class="form-control">
+                <input type="email" name="mail" placeholder="Email" class="form-control" required>
             </div>
             <div class="group">
-                <button type ="submit" clas="btn btn-secondary btn-block">
-                Guardar
-            </button>
-        </div>
+                <button type="submit" class="btn btn-secondary btn-block">
+                    Guardar
+                </button>
+            </div>
         </form>
        </div>
     </div>
-    </div>
 </div>
+
+<script>
+    function validateForm() {
+        const emailField = document.querySelector('[name="mail"]');
+        if (!emailField.value.includes('@')) {
+            alert('El correo electrónico debe contener un "@"');
+            return false;
+        }
+        return true;
+    }
+</script>
 
 {% endblock %}
