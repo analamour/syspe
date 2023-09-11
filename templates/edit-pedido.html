@@ -2,27 +2,34 @@
 
 {% block body %}
 <h2>Editar Pedido</h2>
+
 <form action="/update_pedido/{{ pedido.id_pedido }}" method="post">
-    <div>
+
+    <!-- Desplegable de clientes -->
+    <div class="form-group">
+        <label for="clienteSeleccionado">Cliente:</label>
         <select name="clienteSeleccionado" id="clienteSeleccionado" class="form-select">
-            <option selected>Seleccione un cliente</option>
+            <option value="">Seleccione un cliente</option>
             {% for cliente in clientes %}
-                <option value="{{ cliente[0] }}">{{ cliente[1] }}</option>
+                <option value="{{ cliente[0] }}" 
+                    {% if cliente[0] == pedido.id_cliente %}selected{% endif %}>
+                    {{ cliente[1] }}
+                </option>
             {% endfor %}
         </select>
-        
-        <select id="pedidos" class="form-select">
-            <!-- Los pedidos se cargarán aquí dinámicamente -->
-        </select>
-        
     </div>
-    <div>
+
+    <!-- Fecha del pedido -->
+    <div class="form-group">
         <label for="fecha_pedido">Fecha del Pedido:</label>
-        <input type="date" id="fecha_pedido" name="fecha_pedido" value="{{ pedido.fecha }}">
+        <input type="date" id="fecha_pedido" name="fecha_pedido" value="{{ pedido.fecha }}" class="form-control">
     </div>
 
-    <!-- Puedes añadir más campos aquí, como detalles, etc. -->
-    <input type="submit" value="Actualizar Pedido">
-</form>
-{% endblock %}
+    <!-- Botón de envío -->
+    <div class="form-group mt-3">
+        <input type="submit" value="Actualizar Pedido" class="btn btn-primary">
+    </div>
 
+</form>
+
+{% endblock %}

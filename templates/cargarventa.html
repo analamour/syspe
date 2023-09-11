@@ -1,39 +1,42 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<div class="col-md-8 offset-md-2">
-    <card class="body">
-        <form action="/crear_pedido" method="POST">
-            <div class="form-group">
-                <label for="clienteSeleccionado">Seleccione un cliente:</label>
-                <select name="cliente_id" class="form-select" required>
-                    <option value="">Seleccione un cliente</option>
-                    {% for cliente in clientes %}
-                        <option value="{{ cliente[0] }}">{{ cliente[1] }}</option>
-                    {% endfor %}
-                </select> 
-            </div>
-            
-            <!-- Sección para productos -->
-            <div class="form-group" id="productosContainer">
-                <div class="producto-row">
-                    <select name="producto_id[]" class="form-select articuloSelect" required>
-                        <option value="">Elija un producto</option>
-                        {% for producto in articulo %}
-                            <option value="{{ producto[0] }}" data-price="{{ producto[2] }}">{{ producto[1] }}</option>
+<div class="col-md-6 mx-auto">
+    <div class="card">
+        <div class="card-body">
+            <form action="/crear_pedido" method="POST">
+                <div class="form-group">
+                    <label for="clienteSeleccionado">Seleccione un cliente:</label>
+                    <select name="cliente_id" class="form-select" required>
+                        <option value="">Seleccione un cliente</option>
+                        {% for cliente in clientes %}
+                            <option value="{{ cliente[0] }}">{{ cliente[1] }}</option>
                         {% endfor %}
-                    </select>
-                    <input type="number" name="cantidad[]" class="form-control cantidadInput" min="1" placeholder="Cantidad" required>
+                    </select> 
                 </div>
-            </div>
-            <button type="button" id="agregarProducto" class="btn btn-primary mt-2">Agregar otro producto</button>
-            <div class="form-group mt-3">
-                <label>Total Pedido:</label><span id="totalPedido">$0.00</span>
-            </div>
+                
+                <!-- Sección para productos -->
+                <div class="form-group" id="productosContainer">
+                    <div class="producto-row">
+                        <select name="producto_id[]" class="form-select articuloSelect" required>
+                            <option value="">Elija un producto</option>
+                            {% for producto in articulo %}
+                                <option value="{{ producto[0] }}" data-price="{{ producto[2] }}">{{ producto[1] }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="number" name="cantidad[]" class="form-control cantidadInput" min="1" placeholder="Cantidad" required>
+                        <button type="button" class="btn btn-danger eliminarProducto">Eliminar</button>
+                    </div>
+                </div>
+                <button type="button" id="agregarProducto" class="btn btn-primary mt-2">Agregar otro producto</button>
+                <div class="form-group mt-3">
+                    <label>Total Pedido:</label><span id="totalPedido">$0.00</span>
+                </div>
 
-            <button type="submit" class="btn btn-success btn-block mt-2">Guardar</button>
-        </form>
-    </card>
+                <button type="submit" class="btn btn-success btn-block mt-2">Guardar</button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -76,25 +79,38 @@ function calcularTotal() {
         });
     });
 
+  
+    // Función para agregar los listeners de evento a cada fila de producto
+    function agregarListenersAProductoRow(productoRow) {
+        productoRow.querySelector(".articuloSelect").addEventListener("change", function() {
+            updatePrecio(this, productoRow.querySelector(".cantidadInput"));
+        });
+        productoRow.querySelector(".cantidadInput").addEventListener("input", function() {
+            updatePrecio(productoRow.querySelector(".articuloSelect"), this);
+        });
+        productoRow.querySelector(".eliminarProducto").addEventListener("click", function() {
+            productoRow.remove();
+            calcularTotal();
+        });
+    }
+
+    // Aplicamos la función a las filas de producto existentes
+    document.querySelectorAll(".producto-row").forEach(agregarListenersAProductoRow);
+
     document.getElementById("agregarProducto").addEventListener("click", function() {
-    const productosContainer = document.getElementById("productosContainer");
-    const productoRow = document.querySelector(".producto-row").cloneNode(true);  // clonamos una fila existente
+        const productosContainer = document.getElementById("productosContainer");
+        const productoRow = document.querySelector(".producto-row").cloneNode(true);  // Clonamos una fila existente
 
-    // Reiniciamos los valores en la fila clonada
-    productoRow.querySelector(".articuloSelect").value = "";
-    productoRow.querySelector(".cantidadInput").value = "";
+        // Reiniciamos los valores en la fila clonada
+        productoRow.querySelector(".articuloSelect").value = "";
+        productoRow.querySelector(".cantidadInput").value = "";
 
-    // Agregamos event listeners a los nuevos elementos
-    productoRow.querySelector(".articuloSelect").addEventListener("change", function() {
-        updatePrecio(this, productoRow.querySelector(".cantidadInput"));
+        // Agregamos event listeners a la fila clonada
+        agregarListenersAProductoRow(productoRow);
+
+        // Finalmente, añadimos la nueva fila al contenedor
+        productosContainer.appendChild(productoRow);
     });
-    productoRow.querySelector(".cantidadInput").addEventListener("input", function() {
-        updatePrecio(productoRow.querySelector(".articuloSelect"), this);
-    });
-
-    // Finalmente, añadimos la nueva fila al contenedor
-    productosContainer.appendChild(productoRow);
-});
 
 </script>
 

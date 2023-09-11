@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mysqldb import MySQL
+from MySQLdb import IntegrityError
 from decimal import Decimal
 
 
@@ -83,9 +84,15 @@ def update_clientes(id):
 @app.route("/delete/<string:id>")
 def delete_cliente(id):
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM clientes WHERE id_cliente = %s', (id,))
-    mysql.connection.commit()
-    flash('Cliente eliminado')
+    try:
+        cur.execute('DELETE FROM clientes WHERE id_cliente = %s', (id,))
+        mysql.connection.commit()
+        flash('Cliente eliminado')
+    except IntegrityError:
+        mysql.connection.rollback()  
+        flash('No se puede eliminar el cliente ya que posee pedidos realizados')
+    finally:
+        cur.close()  
     return redirect(url_for('listadoCliente'))
 
 # MODULO ARTICULOS
@@ -117,17 +124,24 @@ def inventario():
 @app.route("/delete_articulo/<string:id_articulo>")
 def delete_articulo(id_articulo):
     cur = mysql.connection.cursor()
-    cur.execute('DELETE FROM articulo WHERE id_articulo = %s', (int(id_articulo),))
-    mysql.connection.commit()
-    flash('articulo eliminado')
+    try:
+        cur.execute('DELETE FROM articulo WHERE id_articulo = %s', (int(id_articulo),))
+        mysql.connection.commit()
+        flash('Artículo eliminado')
+    except IntegrityError:
+        mysql.connection.rollback()  # Revertir cualquier cambio si ocurre un error
+        flash('No se puede eliminar el artículo ya que está siendo utilizado o referenciado en otro lugar.')
+    finally:
+        cur.close()  # Cerrar el cursor
     return redirect(url_for('inventario'))
+
 
 @app.route("/edit_articulo/<id_articulo>")
 def get_articulo(id_articulo):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM articulo WHERE id_articulo = %s', (int(id_articulo),))
     data = cur.fetchall()
-    return render_template('edit-product.html', articulo=data[0])
+    return render_template('edit-articulo.html', articulo=data[0])
 
 @app.route('/update_articulo/<id_articulo>', methods = ['POST'])
 def update_articulo(id_articulo):
@@ -208,7 +222,6 @@ def restar_stock_vendido():
             flash('Stock actualizado')
         return redirect(url_for('inventario'))
     
-
 @app.route("/consultarPedido")
 def consultarPedido():
     cur = mysql.connection.cursor()
@@ -221,14 +234,18 @@ def consultarPedido():
             c.razonsocial,
             d.cantidad,
             d.subtotal,
-            a.producto,
-            a.id_articulo
-        FROM pedidos p
-        JOIN detallesPedido d ON p.id_pedido = d.id_pedido
-        JOIN clientes c ON p.id_cliente = c.id_cliente
-        JOIN articulo a ON d.id_articulo = a.id_articulo
+            a.producto
+        FROM 
+            Pedidos p
+        JOIN 
+            Clientes c ON p.id_cliente = c.id_cliente
+        JOIN 
+            detallesPedido d ON p.id_pedido = d.id_pedido
+        JOIN 
+            articulo a ON d.id_articulo = a.id_articulo;
     ''')
     data = cur.fetchall()
+    print(data)
     return render_template('consultarPedido.html', pedidos=data)
 
 
@@ -236,21 +253,41 @@ def consultarPedido():
 @app.route("/edit_pedido/<id>")
 def edit_pedido(id):
     cur = mysql.connection.cursor()
+    
+    # Obtener datos del pedido basado en el ID
     cur.execute('SELECT * FROM Pedidos WHERE id_pedido = %s', (id,))
     pedido_data = cur.fetchone()
-
-    cur.execute('SELECT id_cliente, razonsocial, nombrefantsia FROM Clientes')  # Asumiendo que tu tabla de clientes se llama 'Clientes' y tiene las columnas 'id' y 'nombre'.
+    
+    # Obtener todos los clientes
+    cur.execute('SELECT id_cliente, razonsocial FROM Clientes')
     clientes = cur.fetchall()
-
+    
     return render_template('edit-pedido.html', pedido=pedido_data, clientes=clientes)
 
+
+@app.route("/delete_pedido/<id>", methods=['POST'])
+def delete_pedido(id):
+    try:
+        cur = mysql.connection.cursor()
+
+        # Borrar el pedido basado en el ID
+        cur.execute('DELETE FROM Pedidos WHERE id_pedido = %s', (id,))
+        
+        mysql.connection.commit()
+
+        flash('Pedido eliminado correctamente!')
+
+    except Exception as e:
+        mysql.connection.rollback()
+        flash('Error al eliminar el pedido: ' + str(e))
+
+    return redirect(url_for('consultarPedido'))
 
 
 @app.route('/update_pedido/<id>', methods=['POST'])
 def update_pedido(id):
     if request.method == 'POST':
         id_cliente = request.form['id_cliente']
-        # Captura otros datos del formulario si los agregas, como fecha, etc.
         cur = mysql.connection.cursor()
         cur.execute("""
             UPDATE Pedidos
@@ -260,6 +297,7 @@ def update_pedido(id):
         mysql.connection.commit()
         flash('Pedido actualizado correctamente!')
         return redirect(url_for('consultarPedido'))
+
 
 
 @app.route('/agregar_stock_ingresado', methods=['POST'])
