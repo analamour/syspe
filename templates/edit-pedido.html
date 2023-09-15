@@ -12,7 +12,7 @@
             <option value="">Seleccione un cliente</option>
             {% for cliente in clientes %}
                 <option value="{{ cliente[0] }}" 
-                    {% if cliente[0] == pedido.id_cliente %}selected{% endif %}>
+                {% if cliente[0] == pedido.id_cliente %}selected{% endif %}
                     {{ cliente[1] }}
                 </option>
             {% endfor %}

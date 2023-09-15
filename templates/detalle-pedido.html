@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>Detalle del Pedido</h2>
+        <table class="table table-striped table-bordered bg-white table-sm">
+            <thead>
+                <tr>
+                    <td>Cliente</td>
+                    <td>Nº de Pedido</td>
+                    <td>Fecha</td>
+                    <td>Precio Unitario</td>
+                    <td>Precio Final</td>
+                    <td>Cantidad</td>
+                    <td>Subtotal</td>
+                    <td>Producto</td>
+                </tr>
+            </thead>
+        
+            <tbody>
+                {% for detalle in detalles %}
+                <tr>
+                    <td>{{ detalle.razonsocial }}</td>
+                    <td>{{ detalle.id_pedido }}</td>
+                    <td>{{ detalle.fecha_pedido }}</td>
+                    <td>{{ detalle.precio_unitario }}</td>
+                    <td>{{ detalle.precio_final }}</td>
+                    <td>{{ detalle.cantidad }}</td>
+                    <td>{{ detalle.subtotal }}</td>
+                    <td>{{ detalle.producto }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

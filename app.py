@@ -249,7 +249,7 @@ def consultarPedido():
     return render_template('consultarPedido.html', pedidos=data)
 
 
-
+@app.route("/edit_pedido/<id>")
 @app.route("/edit_pedido/<id>")
 def edit_pedido(id):
     cur = mysql.connection.cursor()
@@ -265,8 +265,8 @@ def edit_pedido(id):
     return render_template('edit-pedido.html', pedido=pedido_data, clientes=clientes)
 
 
-@app.route("/delete_pedido/<id>", methods=['POST'])
-def delete_pedido(id):
+@app.route("/delete_pedido/<id>")
+def delete_pedido(id):  # Cambiado de POST a GET
     try:
         cur = mysql.connection.cursor()
 
@@ -283,20 +283,55 @@ def delete_pedido(id):
 
     return redirect(url_for('consultarPedido'))
 
-
 @app.route('/update_pedido/<id>', methods=['POST'])
 def update_pedido(id):
     if request.method == 'POST':
-        id_cliente = request.form['id_cliente']
+        id_cliente = request.form['clienteSeleccionado']  # O el nombre del campo que corresponda
+        
         cur = mysql.connection.cursor()
         cur.execute("""
             UPDATE Pedidos
             SET id_cliente = %s
             WHERE id_pedido = %s
         """, (id_cliente, id))
+        
         mysql.connection.commit()
         flash('Pedido actualizado correctamente!')
         return redirect(url_for('consultarPedido'))
+
+
+
+@app.route("/detalle_pedido/<id_pedidos>")
+def detalle_pedido(id):
+    cur = mysql.connection.cursor()
+    
+    # Obtener detalles del pedido basado en el ID
+    cur.execute('''
+        SELECT 
+            p.id_pedido, 
+            p.fecha_pedido,
+            p.precio_unitario,
+            p.precio_final,
+            c.razonsocial,
+            d.cantidad,
+            d.subtotal,
+            a.producto
+        FROM 
+            Pedidos p
+        JOIN 
+            Clientes c ON p.id_cliente = c.id_cliente
+        JOIN 
+            detallesPedido d ON p.id_pedido = d.id_pedido
+        JOIN 
+            articulo a ON d.id_articulo = a.id_articulo
+        WHERE 
+            p.id_pedido = %s;
+    ''', (id,))
+    
+    detalles = cur.fetchall()
+    
+    return render_template('detalle-pedido.html', detalles=detalles)
+
 
 
 
