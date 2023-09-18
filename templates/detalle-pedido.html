@@ -9,7 +9,7 @@
         {% if detalles %}
         <div class="card text-center mb-4">
             <div class="card-header">
-                {{ detalles[0].4 }} <!-- Razon social del cliente -->
+                {{ detalles[0].3 }} <!-- Razon social del cliente -->
             </div>
             <div class="card-body">
                 <h5 class="card-title">Pedido N°: {{ detalles[0].0 }}</h5> <!-- Número de pedido -->
@@ -31,22 +31,35 @@
             <tbody>
                 {% set total = 0 %}
                 {% for detalle in detalles %}
-                <tr>
-                    <td>{{ detalle.7 }}</td> <!-- producto -->
-                    <td>{{ detalle.2 }}</td> <!-- precio_unitario -->
-                    <td>{{ detalle.5 }}</td> <!-- cantidad -->
-                    <td>{{ detalle.6 }}</td> <!-- subtotal -->
-                </tr>
-                {% set total = total + detalle.6 %}
+                    <tr>
+                        <td>{{ detalle.6 }}</td> <!-- producto -->
+                        <td>{{ detalle.7 }}</td> <!-- precio_unitario -->
+                        <td>{{ detalle.4 }}</td> <!-- cantidad -->
+                        <td>{{ detalle.5 }}</td> <!-- subtotal -->
+                    </tr>
+                    {% set total = total + detalle.5 %}  <!-- subtotal -->
                 {% endfor %}
             </tbody>
-        </table>
-
-        <!-- Importe total del pedido -->
-        <h4 class="text-center">Importe total del pedido: ${{ total }}</h4>
-
+        <tfoot>
+            <tr>
+                <td colspan="3" style="text-align: right; font-weight: bold;">Importe Total:</td>
+                <td style="border: 2px solid black; text-align: right; font-weight: bold;">{{ total }}</td>
+            </tr>
+        </tfoot>
+    </table>
     </div>
 </div>
+
+<div class="text-center mt-5"> 
+    
+    <button type="submit" class="btn btn-primary mx-2">Guardar</button>
+    <!-- Botón para ir a la página de edición del pedido -->
+    <a href="{{ url_for('edit_pedido', id=detalles[0].0) }}" class="btn btn-primary mx-2">Editar</a>
+    <a href="{{ url_for('delete_pedido', id=detalles[0].0) }}" class="btn btn-danger mx-2" onclick="return confirm('¿Estás seguro de que deseas eliminar?');">Eliminar</a>
+    
+</div>
+
+
 
 {% endblock %}
 

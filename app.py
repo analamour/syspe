@@ -229,7 +229,6 @@ def consultarPedido():
         SELECT 
             p.id_pedido, 
             p.fecha_pedido,
-            p.precio_unitario,
             p.precio_final,
             c.razonsocial,
             d.cantidad,
@@ -249,7 +248,6 @@ def consultarPedido():
     return render_template('consultarPedido.html', pedidos=data)
 
 
-@app.route("/edit_pedido/<id>")
 @app.route("/edit_pedido/<id>")
 def edit_pedido(id):
     cur = mysql.connection.cursor()
@@ -308,12 +306,12 @@ def detalle_pedido(id_pedido):
         SELECT 
             p.id_pedido, 
             p.fecha_pedido,
-            p.precio_unitario,
             p.precio_final,
             c.razonsocial,
             d.cantidad,
             d.subtotal,
-            a.producto
+            a.producto,
+            a.precio
         FROM 
             pedidos p
         JOIN 
@@ -328,7 +326,10 @@ def detalle_pedido(id_pedido):
     
     detalles = cur.fetchall()
     
-    return render_template('detalle-pedido.html', detalles=detalles)
+    #  para calcular el total
+    total = sum([detalle[5] for detalle in detalles])
+    # Pasa el total a la plantilla
+    return render_template('detalle-pedido.html', detalles=detalles, total=total)
 
 
 
@@ -377,11 +378,11 @@ def crear_pedido():
 
         try:
             cur = mysql.connection.cursor()
-            
-            # Crear un nuevo pedido
+
+            # Crear un nuevo pedido (sin precio_unitario)
             cur.execute("""
-                INSERT INTO pedidos (fecha_pedido, precio_unitario, precio_final, id_cliente) 
-                VALUES (NOW(), 0, 0, %s);
+                INSERT INTO pedidos (fecha_pedido, precio_final, id_cliente) 
+                VALUES (NOW(), 0, %s);
             """, (cliente_id,))
             
             pedido_id = cur.lastrowid  # Obtener el ID del último registro insertado

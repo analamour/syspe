@@ -9,6 +9,7 @@
             <thead>
                 <tr>
                     <td>Nº de Pedido</td>
+                    <td>Fecha</td>
                     <td>Cliente/Razón Social</td>
                     <td>Operaciones</td>
                 </tr>
@@ -19,12 +20,10 @@
                 {% for pedido in pedidos %}
                 <tr>
                     <td>{{ pedido.0 }}</td>
-                    <td>{{ pedido.4 }}</td>
+                    <td>{{ pedido.1 }}</td>
+                    <td>{{ pedido.3 }}</td>
                     <td>
                         <a href="/detalle_pedido/{{pedido.0}}" class="btn btn-info">Detalle</a>
-                        <a href="/edit_pedido/{{pedido.0}}" class="btn btn-danger">Editar</a>
-                        <a href="/delete_pedido/{{pedido.0}}" class="btn btn-dark btn-delete-product">Eliminar</a>
-
                     </td>
                 </tr>
 
