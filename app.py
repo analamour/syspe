@@ -172,14 +172,33 @@ def update_articulo(id_articulo):
 
 #MODULO VENTAS
 
-@app.route("/cargarventa")
+
+@app.route("/cargarventa", methods=["GET", "POST"])
 def cargarventa():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT id_cliente, razonsocial FROM clientes')  # Obteniendo clientes
-    clientes_data = cur.fetchall()
-    cur.execute('SELECT id_articulo, producto FROM articulo WHERE stockDisponible > 0')
-    articulo_data = cur.fetchall()
-    return render_template('cargarventa.html', articulo=articulo_data, clientes=clientes_data)
+
+    if request.method == "POST":
+        producto_ids = request.form.getlist('producto_id[]')
+        cantidades = request.form.getlist('cantidad[]')
+
+        total_venta = 0
+        for producto_id, cantidad in zip(producto_ids, cantidades):
+            cur.execute("SELECT precio FROM articulo WHERE id_articulo=%s", (producto_id,))
+            precio = cur.fetchone()[0]
+            total_venta += precio * int(cantidad)
+
+        # Aquí, después de calcular el total, guardarías la venta en la base de datos.
+        # ... código para guardar en BD ...
+
+        # Luego, mostrar una confirmación al usuario
+        return render_template('confirmacion.html', total=total_venta)
+
+    else:  # Si es GET
+        cur.execute('SELECT id_cliente, razonsocial FROM clientes')  # Obteniendo clientes
+        clientes_data = cur.fetchall()
+        cur.execute('SELECT id_articulo, producto, precio FROM articulo WHERE stockDisponible > 0')
+        articulo_data = cur.fetchall()
+        return render_template('cargarventa.html', articulo=articulo_data, clientes=clientes_data)
 
 @app.route("/cargarstock")
 def cargarstock():
