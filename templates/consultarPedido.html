@@ -18,12 +18,13 @@
                 <!-- Se asume que cada 'pedido' en 'pedidos' tiene un ID único y una razón social -->
                 {% for pedido in pedidos %}
                 <tr>
-                    <td>{{ pedido.id_pedido }}</td>
-                    <td>{{ pedido.razonsocial }}</td>
+                    <td>{{ pedido.0 }}</td>
+                    <td>{{ pedido.4 }}</td>
                     <td>
-                        <a href="/detalle_pedido/{{pedidos.id_pedido}}" class="btn btn-info">Detalle</a>
-                        <a href="/edit_pedido/{{pedidos.id_pedido}}" class="btn btn-danger">Editar</a>
-                        <a href="/delete_pedido/{{pedidos.id_pedido}}" class="btn btn-dark btn-delete-product">Eliminar</a>
+                        <a href="/detalle_pedido/{{pedido.0}}" class="btn btn-info">Detalle</a>
+                        <a href="/edit_pedido/{{pedido.0}}" class="btn btn-danger">Editar</a>
+                        <a href="/delete_pedido/{{pedido.0}}" class="btn btn-dark btn-delete-product">Eliminar</a>
+
                     </td>
                 </tr>
 

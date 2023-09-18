@@ -236,7 +236,7 @@ def consultarPedido():
             d.subtotal,
             a.producto
         FROM 
-            Pedidos p
+            pedidos p
         JOIN 
             Clientes c ON p.id_cliente = c.id_cliente
         JOIN 
@@ -255,7 +255,7 @@ def edit_pedido(id):
     cur = mysql.connection.cursor()
     
     # Obtener datos del pedido basado en el ID
-    cur.execute('SELECT * FROM Pedidos WHERE id_pedido = %s', (id,))
+    cur.execute('SELECT * FROM pedidos WHERE id_pedido = %s', (id,))
     pedido_data = cur.fetchone()
     
     # Obtener todos los clientes
@@ -266,22 +266,20 @@ def edit_pedido(id):
 
 
 @app.route("/delete_pedido/<id>")
-def delete_pedido(id):  # Cambiado de POST a GET
+def delete_pedido(id):
+    cur = mysql.connection.cursor()
     try:
-        cur = mysql.connection.cursor()
-
-        # Borrar el pedido basado en el ID
-        cur.execute('DELETE FROM Pedidos WHERE id_pedido = %s', (id,))
-        
+        # Primero eliminar detalles
+        cur.execute('DELETE FROM detallespedido WHERE id_pedido = %s', (id,))
+        # Luego eliminar el pedido
+        cur.execute('DELETE FROM pedidos WHERE id_pedido = %s', (id,))
         mysql.connection.commit()
-
         flash('Pedido eliminado correctamente!')
-
     except Exception as e:
         mysql.connection.rollback()
         flash('Error al eliminar el pedido: ' + str(e))
-
     return redirect(url_for('consultarPedido'))
+
 
 @app.route('/update_pedido/<id>', methods=['POST'])
 def update_pedido(id):
@@ -290,21 +288,21 @@ def update_pedido(id):
         
         cur = mysql.connection.cursor()
         cur.execute("""
-            UPDATE Pedidos
+            UPDATE pedidos
             SET id_cliente = %s
             WHERE id_pedido = %s
         """, (id_cliente, id))
         
         mysql.connection.commit()
-        flash('Pedido actualizado correctamente!')
+        flash('pedido actualizado correctamente!')
         return redirect(url_for('consultarPedido'))
 
 
 
-@app.route("/detalle_pedido/<id_pedidos>")
-def detalle_pedido(id):
+@app.route("/detalle_pedido/<id_pedido>")
+def detalle_pedido(id_pedido):
     cur = mysql.connection.cursor()
-    
+
     # Obtener detalles del pedido basado en el ID
     cur.execute('''
         SELECT 
@@ -317,7 +315,7 @@ def detalle_pedido(id):
             d.subtotal,
             a.producto
         FROM 
-            Pedidos p
+            pedidos p
         JOIN 
             Clientes c ON p.id_cliente = c.id_cliente
         JOIN 
@@ -326,7 +324,7 @@ def detalle_pedido(id):
             articulo a ON d.id_articulo = a.id_articulo
         WHERE 
             p.id_pedido = %s;
-    ''', (id,))
+    ''', (id_pedido,))
     
     detalles = cur.fetchall()
     

@@ -3,37 +3,50 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h2>Detalle del Pedido</h2>
+        <h2 class="text-center">Detalle del Pedido</h2>
+
+        <!-- Cabecera con detalles del pedido -->
+        {% if detalles %}
+        <div class="card text-center mb-4">
+            <div class="card-header">
+                {{ detalles[0].4 }} <!-- Razon social del cliente -->
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Pedido N°: {{ detalles[0].0 }}</h5> <!-- Número de pedido -->
+                <p class="card-text">Fecha: {{ detalles[0].1 }}</p> <!-- Fecha de pedido -->
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Detalle del pedido -->
         <table class="table table-striped table-bordered bg-white table-sm">
             <thead>
                 <tr>
-                    <td>Cliente</td>
-                    <td>Nº de Pedido</td>
-                    <td>Fecha</td>
+                    <td>Producto</td>
                     <td>Precio Unitario</td>
-                    <td>Precio Final</td>
                     <td>Cantidad</td>
                     <td>Subtotal</td>
-                    <td>Producto</td>
                 </tr>
             </thead>
-        
             <tbody>
+                {% set total = 0 %}
                 {% for detalle in detalles %}
                 <tr>
-                    <td>{{ detalle.razonsocial }}</td>
-                    <td>{{ detalle.id_pedido }}</td>
-                    <td>{{ detalle.fecha_pedido }}</td>
-                    <td>{{ detalle.precio_unitario }}</td>
-                    <td>{{ detalle.precio_final }}</td>
-                    <td>{{ detalle.cantidad }}</td>
-                    <td>{{ detalle.subtotal }}</td>
-                    <td>{{ detalle.producto }}</td>
+                    <td>{{ detalle.7 }}</td> <!-- producto -->
+                    <td>{{ detalle.2 }}</td> <!-- precio_unitario -->
+                    <td>{{ detalle.5 }}</td> <!-- cantidad -->
+                    <td>{{ detalle.6 }}</td> <!-- subtotal -->
                 </tr>
+                {% set total = total + detalle.6 %}
                 {% endfor %}
             </tbody>
         </table>
+
+        <!-- Importe total del pedido -->
+        <h4 class="text-center">Importe total del pedido: ${{ total }}</h4>
+
     </div>
 </div>
 
 {% endblock %}
+
