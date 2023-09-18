@@ -53,11 +53,16 @@ function calcularTotal() {
     let total = 0;
     const cantidades = document.querySelectorAll(".cantidadInput");
     cantidades.forEach(function(cantidad) {
-        total += parseFloat(cantidad.getAttribute("data-precio")) * parseFloat(cantidad.value);
+        const precio = parseFloat(cantidad.getAttribute("data-precio"));
+        const valorCantidad = parseFloat(cantidad.value);
+        if (!isNaN(precio) && !isNaN(valorCantidad)) {
+            total += precio * valorCantidad;
+        }
     });
     
     document.getElementById("totalPedido").innerText = "$" + total.toFixed(2);
 }
+
 
     document.addEventListener("DOMContentLoaded", function() {
     
@@ -65,10 +70,13 @@ function calcularTotal() {
             var selectedOption = articuloSelect.options[articuloSelect.selectedIndex];
             var precioUnitario = parseFloat(selectedOption.getAttribute("data-price"));
             var cantidad = parseFloat(cantidadInput.value) || 0;
-    
-            var precioTotal = precioUnitario * cantidad;
-            document.getElementById("totalPedido").innerText = "$" + precioTotal.toFixed(2);
+            if (!isNaN(precioUnitario) && !isNaN(cantidad)) {
+                var precioTotal = precioUnitario * cantidad;
+                cantidadInput.setAttribute("data-precio", precioTotal.toFixed(2)); // Esto almacena el subtotal en el atributo data-precio
+            }
         }
+
+
     
         const articuloSelects = document.querySelectorAll(".articuloSelect");
         const cantidadInputs = document.querySelectorAll(".cantidadInput");
@@ -84,15 +92,18 @@ function calcularTotal() {
     function agregarListenersAProductoRow(productoRow) {
         productoRow.querySelector(".articuloSelect").addEventListener("change", function() {
             updatePrecio(this, productoRow.querySelector(".cantidadInput"));
+            calcularTotal();  // Añade esta línea
         });
         productoRow.querySelector(".cantidadInput").addEventListener("input", function() {
             updatePrecio(productoRow.querySelector(".articuloSelect"), this);
+            calcularTotal();  // Añade esta línea
         });
         productoRow.querySelector(".eliminarProducto").addEventListener("click", function() {
             productoRow.remove();
             calcularTotal();
         });
     }
+
 
     // Aplicamos la función a las filas de producto existentes
     document.querySelectorAll(".producto-row").forEach(agregarListenersAProductoRow);
@@ -110,7 +121,10 @@ function calcularTotal() {
 
         // Finalmente, añadimos la nueva fila al contenedor
         productosContainer.appendChild(productoRow);
+
+        calcularTotal();  // Añade esta línea
     });
+
 
 </script>
 

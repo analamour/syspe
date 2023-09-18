@@ -29,15 +29,14 @@
                 </tr>
             </thead>
             <tbody>
-                {% set total = 0 %}
+                
                 {% for detalle in detalles %}
                     <tr>
                         <td>{{ detalle.6 }}</td> <!-- producto -->
                         <td>{{ detalle.7 }}</td> <!-- precio_unitario -->
                         <td>{{ detalle.4 }}</td> <!-- cantidad -->
                         <td>{{ detalle.5 }}</td> <!-- subtotal -->
-                    </tr>
-                    {% set total = total + detalle.5 %}  <!-- subtotal -->
+                    </tr>s
                 {% endfor %}
             </tbody>
         <tfoot>
