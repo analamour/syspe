@@ -10,8 +10,9 @@
                 <td class="text-center align-middle">articulo</td>
                 <td class="text-center align-middle">Detalle</td>
                 <td class="text-center align-middle">Precio</td>
-                <td class="text-center align-middle">Stock disponible</td>
-                <td class="text-center align-middle">Stock vendido</td>
+                <td class="text-center align-middle">Stock Total</td>
+                <td class="text-center align-middle">Stock Vendido</td>
+                <td class="text-center align-middle">Stock Disponible</td>
                 <td class="text-center align-middle">Rubro</td>
             </tr>
         </thead>
@@ -19,18 +20,20 @@
         <tbody>
             {% for articulo in articulo %}
             <tr>
-                <td class="text-center align-middle">{{ articulo.0 }}</td>
-                <td class="text-center align-middle">{{ articulo.1 }}</td>
-                <td class="text-center align-middle">{{ articulo.2 }}</td>
-                <td class="text-center align-middle">{{ articulo.6 }}</td>
-                <td class="text-center align-middle">{{ articulo.4 }}</td>
-                <td class="text-center align-middle">{{ articulo.3 }}</td>
-                <td class="text-center align-middle">{{ articulo.5 }}</td>
+                <td class="text-center align-middle">{{ articulo.0 }}</td>  <!-- Codigo Articulo -->
+                <td class="text-center align-middle">{{ articulo.1 }}</td>  <!-- articulo -->
+                <td class="text-center align-middle">{{ articulo.2 if articulo.2 != None else 'Sin detalles' }}</td> <!-- _Detalle -->
+                <td class="text-center align-middle">{{ articulo.3 }}</td>  <!-- Precio -->
+                <td class="text-center align-middle">{{ articulo.4 }}</td>  <!-- Stock total -->
+                <td class="text-center align-middle">{{ articulo.5 }}</td>  <!-- Stock vendido -->
+                <td class="text-center align-middle">{{ articulo.7 }}</td>  <!-- Stock Disponible -->
+                <td class="text-center align-middle">{{ articulo.6 }}</td>  <!-- Rubro -->
                 <td class="text-center align-middle"><a href="/edit_articulo/{{articulo.0}}" class="btn btn-danger"> Editar</a></td>
                 <td class="text-center align-middle"><a href="/delete_articulo/{{articulo.0}}" class="btn btn-dark btn-delete-product"> Eliminar</a></td>
             </tr>
             {% endfor %}
         </tbody>
+        
     </table>
 
     <div class="container">

@@ -117,9 +117,19 @@ def add_producto():
 @app.route("/inventario")
 def inventario():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM articulo')
+    cur.execute('''
+        SELECT 
+            a.id_articulo, a.producto, a.detalle, a.precio, a.stockDisponible, 
+            IFNULL(SUM(d.cantidad), 0) as stockVendido, a.rubro,
+            (a.stockDisponible - IFNULL(SUM(d.cantidad), 0)) as stockActual
+    FROM articulo a
+    LEFT JOIN detallesPedido d ON a.id_articulo = d.id_articulo
+    GROUP BY a.id_articulo, a.producto, a.detalle, a.precio, a.stockDisponible, a.rubro;
+    ''')
     data = cur.fetchall()
     return render_template('inventario.html', articulo=data)
+
+
 
 @app.route("/delete_articulo/<string:id_articulo>")
 def delete_articulo(id_articulo):
@@ -425,6 +435,13 @@ def crear_pedido():
                 SET precio_final = %s 
                 WHERE id_pedido = %s;
             """, (total_pedido, pedido_id))
+            
+            # Reducir el stock del artículo
+            cur.execute("""
+                UPDATE articulo 
+                SET stockDisponible = stockDisponible - %s 
+                WHERE id_articulo = %s;
+            """, (cantidad, producto_id))
 
             mysql.connection.commit()
             flash('Pedido creado con éxito.')
