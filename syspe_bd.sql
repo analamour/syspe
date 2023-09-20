@@ -54,10 +54,9 @@ DROP TABLE IF EXISTS `articulo`;
 CREATE TABLE `articulo` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `producto` varchar(100) DEFAULT NULL,
-  `comentario` varchar(255) DEFAULT NULL,
+  `detalle` varchar(255) DEFAULT NULL,
   `stockVendido` int(11) DEFAULT NULL,
   `stockDisponible` int(11) DEFAULT NULL,
-  `rubro` varchar(150) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;

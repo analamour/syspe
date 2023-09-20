@@ -123,12 +123,11 @@ def altaProducto():
 def add_producto():
     if request.method == 'POST':
         producto = request.form['producto']
-        detalles = request.form['detalles']
+        detalle = request.form['detalle']
         precio = request.form['precio']
         cantidad = request.form['cantidad']
-        rubro = request.form['rubro']
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO articulo (producto, comentario, precio, stockVendido, stockDisponible, rubro) VALUES (%s, %s, %s, %s, %s, %s)', (producto, detalles, precio, 0, cantidad, rubro))
+        cur.execute('INSERT INTO articulo (producto, detalle, precio, stockVendido, stockDisponible) VALUES (%s, %s, %s, %s, %s)', (producto, detalle, precio, 0, cantidad))
         mysql.connection.commit()
         flash("articulo agregado")
         return redirect(url_for('altaProducto'))
@@ -139,11 +138,11 @@ def inventario():
     cur.execute('''
         SELECT 
             a.id_articulo, a.producto, a.detalle, a.precio, a.stockDisponible, 
-            IFNULL(SUM(d.cantidad), 0) as stockVendido, a.rubro,
+            IFNULL(SUM(d.cantidad), 0) as stockVendido, 
             (a.stockDisponible - IFNULL(SUM(d.cantidad), 0)) as stockActual
     FROM articulo a
     LEFT JOIN detallesPedido d ON a.id_articulo = d.id_articulo
-    GROUP BY a.id_articulo, a.producto, a.detalle, a.precio, a.stockDisponible, a.rubro;
+    GROUP BY a.id_articulo, a.producto, a.detalle, a.precio, a.stockDisponible;
     ''')
     data = cur.fetchall()
     return render_template('inventario.html', articulo=data)
@@ -176,23 +175,21 @@ def get_articulo(id_articulo):
 def update_articulo(id_articulo):
     if request.method == 'POST':
         producto = request.form['producto']
-        comentario = request.form['comentario']
+        detalle = request.form['detalle']
         precio = request.form['precio']
         stockDisponible = request.form['stockDisponible']
         stockVendido = request.form['stockVendido']
-        rubro = request.form['rubro']
 
         cur = mysql.connection.cursor()
         cur.execute("""
             UPDATE articulo
             SET producto = %s,
-                comentario = %s,
+                detalle = %s,
                 precio = %s,
                 stockDisponible = %s,
                 stockVendido = %s,
-                rubro = %s
             WHERE id_articulo = %s
-        """,  (producto, comentario, precio, stockDisponible, stockVendido, rubro, id_articulo))   
+        """,  (producto, detalle, precio, stockDisponible, stockVendido, id_articulo))   
   
         mysql.connection.commit()
         flash('articulo modificado')
