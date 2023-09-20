@@ -95,6 +95,25 @@ def delete_cliente(id):
         cur.close()  
     return redirect(url_for('listadoCliente'))
 
+@app.route('/buscar_cliente', methods=['GET'])
+def buscar_cliente():
+    razon_social = request.args.get('razon_social', default="", type=str)
+    cur = mysql.connection.cursor()
+
+    cur.execute('''
+        SELECT 
+            id_cliente, 
+            razonsocial
+        FROM 
+            clientes
+        WHERE 
+            razonsocial LIKE %s
+    ''',('%' + razon_social + '%',))
+
+
+    clientes = cur.fetchall()
+    return render_template('listadoCliente.html', clientes=clientes)
+
 # MODULO ARTICULOS
 @app.route("/altaProducto")
 def altaProducto():
