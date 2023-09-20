@@ -360,6 +360,29 @@ def detalle_pedido(id_pedido):
     # Pasa el total a la plantilla
     return render_template('detalle-pedido.html', detalles=detalles, total=total)
 
+@app.route('/buscar', methods=['GET'])
+def buscar_pedidos():
+    nombre_cliente = request.args.get('nombre_cliente', default="", type=str)
+    id_pedido = request.args.get('id_pedido', default="", type=str)
+    cur = mysql.connection.cursor()
+
+    # Consulta SQL
+    cur.execute('''
+        SELECT 
+            p.id_pedido, 
+            p.fecha_pedido, 
+            c.razonsocial
+        FROM 
+            pedidos p
+        JOIN 
+            Clientes c ON p.id_cliente = c.id_cliente
+        WHERE 
+            c.razonsocial LIKE %s AND p.id_pedido LIKE %s
+    ''', ('%' + nombre_cliente + '%', '%' + id_pedido + '%',))
+
+    pedidos = cur.fetchall()
+    return render_template('consultarPedido.html', pedidos=pedidos)
+
 
 
 

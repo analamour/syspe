@@ -28,8 +28,10 @@
                     <td>{{ cliente.5 }}</td>
                     <td>{{ cliente.6 }}</td>
                     <td>
-                        <a href="/edit/{{cliente.0}}" class="btn btn-danger"> Editar</a>
-                        <a href="/delete/{{cliente.0}}" class="btn btn-danger btn-delete"> Eliminar</a>
+                        <a href="/edit/{{cliente.0}}" style="float: left; margin-right: 10px;" class="btn btn-secondary"> Editar</a>
+                        <a href="/delete/{{cliente.0}}" style="float: left;" class="btn btn-dark"> Eliminar</a>
+                        <div style="clear: both;"></div> <!-- Esto limpia el flotado -->
+
                     </td>
                 </tr>
                 {% endfor %}

@@ -15,3 +15,39 @@ body {
 img  {
     background-position: center;
   }
+
+.btn-desplazado {
+    margin-top: 10px;
+}
+
+.producto-row {
+    display: flex;
+    align-items: center; /* Alinear verticalmente en caso de que haya diferencia en la altura de los elementos */
+}
+
+.eliminarProducto.btn-desplazado {
+    margin-left: 5px;
+}
+.producto-row {
+    display: flex;
+    align-items: center;
+}
+
+.producto-row * { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+.eliminarProducto.btn-desplazado {
+    margin-left: 10px;
+}
+
+/* Ajustar el tamaño si es necesario */
+.producto-row select, 
+.producto-row input {
+    height: 30px; 
+}
+.producto-row select.articuloSelect {
+    margin-right: 20px;  
+}
