@@ -281,15 +281,18 @@ def consultarPedido():
             c.razonsocial,
             d.cantidad,
             d.subtotal,
-            a.producto
-        FROM 
+            a.producto,
+            p.id_cliente
+         FROM 
             pedidos p
         JOIN 
             Clientes c ON p.id_cliente = c.id_cliente
-        JOIN 
+        LEFT JOIN 
             detallesPedido d ON p.id_pedido = d.id_pedido
-        JOIN 
-            articulo a ON d.id_articulo = a.id_articulo;
+        LEFT JOIN 
+            articulo a ON d.id_articulo = a.id_articulo
+        ORDER BY 
+            p.fecha_pedido DESC;        
     ''')
     data = cur.fetchall()
     print(data)
