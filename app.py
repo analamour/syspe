@@ -284,7 +284,8 @@ def consultarPedido():
             d.cantidad,
             d.subtotal,
             a.producto,
-            p.id_cliente
+            p.id_cliente,
+            p.estado
          FROM 
             pedidos p
         JOIN 
@@ -391,21 +392,33 @@ def buscar_pedidos():
     cur = mysql.connection.cursor()
 
     cur.execute('''
-         SELECT 
-            p.id_pedido, 
-            p.fecha_pedido, 
-            c.razonsocial
-        FROM 
-            pedidos p
-        JOIN 
-            Clientes c ON p.id_cliente = c.id_cliente
-        WHERE 
-            c.razonsocial LIKE %s AND p.id_pedido LIKE %s
+    SELECT 
+        p.id_pedido, 
+        p.fecha_pedido, 
+        c.razonsocial,
+        p.estado
+    FROM 
+        pedidos p
+    JOIN 
+        Clientes c ON p.id_cliente = c.id_cliente
+    WHERE 
+        c.razonsocial LIKE %s AND p.id_pedido LIKE %s
     ''', ('%' + nombre_cliente + '%', '%' + id_pedido + '%',))
+    
+    data = cur.fetchall()  # Obtener los resultados de la consulta
+    cur.close()            # Cerrar el cursor
 
-    pedidos = cur.fetchall()
-    return render_template('consultarPedido.html', pedidos=pedidos)
+    # Devolver los resultados renderizados en la plantilla
+    return render_template('consultarPedido.html', pedidos=data)
 
+ 
+
+@app.route('/preparar_pedido/<int:id_pedido>', methods=['GET'])
+def preparar_pedido(id_pedido):
+    cur = mysql.connection.cursor()
+    cur.execute('UPDATE pedidos SET estado = "preparado" WHERE id_pedido = %s', (id_pedido,))
+    mysql.connection.commit()
+    return redirect(url_for('consultarPedido'))
 
 
 

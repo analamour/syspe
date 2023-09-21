@@ -30,10 +30,15 @@
                 <tr>
                     <td>{{ pedido.0 }}</td>
                     <td>{{ pedido.1 }}</td>
-                    <td>{{ pedido.2 }}</td>
+                    <td>{{ pedido.3 }}</td>
                     <td>
                         <a href="/detalle_pedido/{{pedido.0}}" class="btn btn-secondary">Detalle</a>
+                        {{ pedido.8 }} <!-- Esto mostrará el valor de 'estado' en la tabla -->
+                        {% if pedido.8 == "pendiente" %}
+                            <a href="/preparar_pedido/{{pedido.0}}" class="btn btn-dark">Preparar Pedido</a>
+                        {% endif %}
                     </td>
+                    
                 </tr>
 
                 
