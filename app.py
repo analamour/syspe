@@ -103,7 +103,12 @@ def buscar_cliente():
     cur.execute('''
         SELECT 
             id_cliente, 
-            razonsocial
+            razonsocial,
+            nombrefantsia,
+            telefono,
+            cuit,
+            direccion,
+            mail
         FROM 
             clientes
         WHERE 
@@ -385,9 +390,8 @@ def buscar_pedidos():
     id_pedido = request.args.get('id_pedido', default="", type=str)
     cur = mysql.connection.cursor()
 
-    # Consulta SQL
     cur.execute('''
-        SELECT 
+         SELECT 
             p.id_pedido, 
             p.fecha_pedido, 
             c.razonsocial
