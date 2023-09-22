@@ -9,6 +9,7 @@ SYSPE es un sistema destinado a pequeños emprendedores y trabajadores autónomo
 ![4](https://user-images.githubusercontent.com/80334601/233845376-3b0219ea-8bb6-46c2-b886-6efa2a27c528.png)
 
 Documentación online:
+
 Documento de proyecto:
 https://docs.google.com/document/d/1SMSfxuHDIGk_ee1qbsjqivj8bK0PVdi8FBDw19-VcHs/edit?usp=sharing
 Planificación:
