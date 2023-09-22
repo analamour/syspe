@@ -295,7 +295,8 @@ def consultarPedido():
         LEFT JOIN 
             articulo a ON d.id_articulo = a.id_articulo
         ORDER BY 
-            p.fecha_pedido DESC;        
+            CASE WHEN p.estado = 'pendiente' THEN 1 ELSE 2 END,
+            p.fecha_pedido DESC;       
     ''')
     data = cur.fetchall()
     print(data)
