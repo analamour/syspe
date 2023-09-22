@@ -25,23 +25,21 @@
             </thead>
         
             <tbody>
-                <!-- Se asume que cada 'pedido' en 'pedidos' tiene un ID único y una razón social -->
                 {% for pedido in pedidos %}
                 <tr>
                     <td>{{ pedido.0 }}</td>
                     <td>{{ pedido.1 }}</td>
                     <td>{{ pedido.3 }}</td>
                     <td>
-                        <a href="/detalle_pedido/{{pedido.0}}" class="btn btn-secondary">Detalle</a>
-                        {{ pedido.8 }} <!-- Esto mostrará el valor de 'estado' en la tabla -->
+                        <a href="/detalle_pedido/{{pedido.0}}" class="btn btn-secondary">Consultar</a>
                         {% if pedido.8 == "pendiente" %}
-                            <a href="/preparar_pedido/{{pedido.0}}" class="btn btn-dark">Preparar Pedido</a>
+                            <a href="/preparar_pedido/{{pedido.0}}" class="btn btn-dark">Preparar</a>
+                            <span class="ml-2 badge badge-pill badge-success">{{ pedido.8 }}</span>
+                        {% else %}
+                            <span class="ml-2 badge badge-pill badge-danger">{{ pedido.8 }}</span>
                         {% endif %}
                     </td>
-                    
                 </tr>
-
-                
                 {% endfor %}
             </tbody>
         </table>
