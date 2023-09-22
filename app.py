@@ -176,29 +176,20 @@ def get_articulo(id_articulo):
     data = cur.fetchall()
     return render_template('edit-articulo.html', articulo=data[0])
 
-@app.route('/update_articulo/<id_articulo>', methods = ['POST'])
+@app.route("/update_articulo/<id_articulo>", methods=['POST'])
 def update_articulo(id_articulo):
-    if request.method == 'POST':
-        producto = request.form['producto']
-        detalle = request.form['detalle']
-        precio = request.form['precio']
-        stockDisponible = request.form['stockDisponible']
-        stockVendido = request.form['stockVendido']
-
-        cur = mysql.connection.cursor()
-        cur.execute("""
-            UPDATE articulo
-            SET producto = %s,
-                detalle = %s,
-                precio = %s,
-                stockDisponible = %s,
-                stockVendido = %s,
-            WHERE id_articulo = %s
-        """,  (producto, detalle, precio, stockDisponible, stockVendido, id_articulo))   
-  
-        mysql.connection.commit()
-        flash('articulo modificado')
-        return redirect(url_for('inventario'))
+    detalle = request.form['detalle']
+    precio = request.form['precio']
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        UPDATE articulo
+        SET detalle = %s,
+        precio = %s
+        WHERE id_articulo = %s;
+    """, (detalle, precio, id_articulo))
+    mysql.connection.commit()
+    flash('Artículo actualizado exitosamente')
+    return redirect(url_for('inventario'))
 
 
 #MODULO VENTAS
@@ -245,17 +236,19 @@ def restar_stock_vendido():
         cliente_id = request.form.get('clienteSeleccionado')
         cantVentaForm = request.form.get('cantidadVendido')
         codigoarticulo = request.form.get('codigoarticulo')
+        
         if not all([cliente_id, cantVentaForm, codigoarticulo]):
             flash('Faltan datos en el formulario.')
             return redirect(url_for('cargarventa'))
+        
         cur = mysql.connection.cursor()
         cur.execute("SELECT stockDisponible, stockVendido FROM articulo WHERE id_articulo=%s", (codigoarticulo,))
         cantidadDisponibleActual, cantidadVendidaActual = cur.fetchone()
         print("Stock Disponible actual:", cantidadDisponibleActual)
         print("Stock Vendido actual:", cantidadVendidaActual)
 
-        cantidadDisponibleActual, cantidadVendidaActual = cur.fetchone()
         cantidadVendidaForm = int(cantVentaForm)
+        
         if cantidadVendidaForm > cantidadDisponibleActual:
             flash(f'La cantidad ingresada supera al stock disponible')
         else:
@@ -271,6 +264,7 @@ def restar_stock_vendido():
             mysql.connection.commit()
             flash('Stock actualizado')
         return redirect(url_for('inventario'))
+
     
 @app.route("/consultarPedido")
 def consultarPedido():
@@ -395,8 +389,10 @@ def buscar_pedidos():
     cur.execute('''
     SELECT 
         p.id_pedido, 
-        p.fecha_pedido, 
+        p.fecha_pedido,
+        p.precio_final,
         c.razonsocial,
+        p.id_cliente,
         p.estado
     FROM 
         pedidos p
