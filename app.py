@@ -31,9 +31,34 @@ def altaCliente():
 @app.route("/listadoCliente")
 def listadoCliente():
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM clientes')
-    data = cur.fetchall()
-    return render_template('listadoCliente.html', clientes=data)
+    
+    # Consulta para clientes activos
+    cur.execute('SELECT * FROM clientes WHERE estado = "activo"')
+    clientes_activos = cur.fetchall()
+    
+    # Consulta para clientes inactivos
+    cur.execute('SELECT * FROM clientes WHERE estado = "inactivo"')
+    clientes_inactivos = cur.fetchall()
+    
+    return render_template('listadoCliente.html', activos=clientes_activos, inactivos=clientes_inactivos)
+
+
+@app.route("/inactivar_cliente/<id>")
+def inactivar_cliente(id):
+    cur = mysql.connection.cursor()
+    cur.execute('UPDATE clientes SET estado="inactivo" WHERE id_cliente = %s', (id,))
+    mysql.connection.commit()
+    flash('Cliente marcado como inactivo')
+    return redirect(url_for('listadoCliente'))
+
+@app.route("/activar_cliente/<string:id>")
+def activar_cliente(id):
+    cur = mysql.connection.cursor()
+    cur.execute('UPDATE clientes SET estado="activo" WHERE id_cliente = %s', (id,))
+    mysql.connection.commit()
+    flash('Cliente activado con éxito')
+    return redirect(url_for('listadoCliente'))
+
 
 @app.route("/add_cliente", methods=['POST'])
 def add_cliente():
@@ -131,12 +156,13 @@ def add_producto():
         detalle = request.form['detalle']
         precio = request.form['precio']
         cantidad = request.form['cantidad']
+        estado = "activo" 
         cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO articulo (producto, detalle, precio, stockVendido, stockDisponible) VALUES (%s, %s, %s, %s, %s)', (producto, detalle, precio, 0, cantidad))
+        cur.execute('INSERT INTO articulo (producto, detalle, precio, stockVendido, stockDisponible, estado) VALUES (%s, %s, %s, %s, %s, %s)', (producto, detalle, precio, 0, cantidad, estado))
         mysql.connection.commit()
         flash("articulo agregado")
         return redirect(url_for('altaProducto'))
-
+    
 @app.route("/inventario")
 def inventario():
     cur = mysql.connection.cursor()
@@ -165,7 +191,7 @@ def delete_articulo(id_articulo):
         mysql.connection.rollback()  # Revertir cualquier cambio si ocurre un error
         flash('No se puede eliminar el artículo ya que está siendo utilizado o referenciado en otro lugar.')
     finally:
-        cur.close()  # Cerrar el cursor
+        cur.close()  
     return redirect(url_for('inventario'))
 
 
@@ -191,6 +217,41 @@ def update_articulo(id_articulo):
     flash('Artículo actualizado exitosamente')
     return redirect(url_for('inventario'))
 
+@app.route("/listadoProducto")
+def listadoProducto():
+    cur = mysql.connection.cursor()
+    
+    # Consulta para productos activos
+    cur.execute('SELECT * FROM articulo WHERE estado = "activo"')
+    productos_activos = cur.fetchall()
+    
+    # Consulta para productos inactivos
+    cur.execute('SELECT * FROM articulo WHERE estado = "inactivo"')
+    productos_inactivos = cur.fetchall()
+    
+    return render_template('listadoProducto.html', activos=productos_activos, inactivos=productos_inactivos)
+
+@app.route('/enviar_historico/<id_articulo>')
+def enviar_historico(id_articulo):
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute('UPDATE articulo SET estado="historico" WHERE id_articulo = %s', (id_articulo,))
+        mysql.connection.commit()
+        flash('Artículo enviado a histórico con éxito', 'success')
+    except:
+        flash('Hubo un error al enviar el artículo a histórico', 'danger')
+    return redirect(url_for('listadoProducto'))
+
+@app.route('/activar_articulo/<id_articulo>')
+def activar_articulo(id_articulo):
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute('UPDATE articulo SET estado="activo" WHERE id_articulo = %s', (id_articulo,))
+        mysql.connection.commit()
+        flash('Artículo activado con éxito', 'success')
+    except:
+        flash('Hubo un error al activar el artículo', 'danger')
+    return redirect(url_for('listadoProducto'))
 
 #MODULO VENTAS
 
@@ -209,10 +270,6 @@ def cargarventa():
             precio = cur.fetchone()[0]
             total_venta += precio * int(cantidad)
 
-        # Aquí, después de calcular el total, guardarías la venta en la base de datos.
-        # ... código para guardar en BD ...
-
-        # Luego, mostrar una confirmación al usuario
         return render_template('confirmacion.html', total=total_venta)
 
     else:  # Si es GET
@@ -289,12 +346,14 @@ def consultarPedido():
         LEFT JOIN 
             articulo a ON d.id_articulo = a.id_articulo
         ORDER BY 
-            CASE WHEN p.estado = 'pendiente' THEN 1 ELSE 2 END,
             p.fecha_pedido DESC;       
     ''')
     data = cur.fetchall()
-    print(data)
-    return render_template('consultarPedido.html', pedidos=data)
+    pedidos_preparados = [pedido for pedido in data if pedido[8] == 'preparado']
+    pedidos_pendientes = [pedido for pedido in data if pedido[8] == 'pendiente']
+    pedidos_anulados = [pedido for pedido in data if pedido[8] == 'anulado' or pedido[8] == 'eliminado']
+
+    return render_template('consultarPedido.html', pedidos_preparados=pedidos_preparados, pedidos_pendientes=pedidos_pendientes, pedidos_anulados=pedidos_anulados)
 
 
 @app.route("/edit_pedido/<id>")
@@ -410,13 +469,26 @@ def buscar_pedidos():
 
  
 
-@app.route('/preparar_pedido/<int:id_pedido>', methods=['GET'])
-def preparar_pedido(id_pedido):
+@app.route('/pedidos_preparados/<int:id_pedido>', methods=['GET'])
+def pedidos_preparados(id_pedido):
     cur = mysql.connection.cursor()
     cur.execute('UPDATE pedidos SET estado = "preparado" WHERE id_pedido = %s', (id_pedido,))
     mysql.connection.commit()
     return redirect(url_for('consultarPedido'))
 
+@app.route('/pedidos_anulados/<int:id_pedido>', methods=['GET'])
+def pedidos_anulados(id_pedido):
+    cur = mysql.connection.cursor()
+    cur.execute('UPDATE pedidos SET estado = "anulado" WHERE id_pedido = %s', (id_pedido,))
+    mysql.connection.commit()
+    return redirect(url_for('consultarPedido'))
+
+@app.route('/pedidos_pendientes/<int:id_pedido>', methods=['GET'])
+def pedidos_pendientes(id_pedido):
+    cur = mysql.connection.cursor()
+    cur.execute('UPDATE pedidos SET estado = "pendiente" WHERE id_pedido = %s', (id_pedido,))
+    mysql.connection.commit()
+    return redirect(url_for('consultarPedido'))
 
 
 @app.route('/agregar_stock_ingresado', methods=['POST'])

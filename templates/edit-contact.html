@@ -27,6 +27,14 @@
             <button type ="submit" class="btn btn-success btn-block">
                 Guardar
             </button>
+        
+            </div>
+            <!-- botón para inactivar -->
+            {% if cliente.7 == "activo" %}  <!-- Si el cliente está activo -->
+                <a href="/inactivar_cliente/{{cliente.0}}" class="btn btn-warning">Inactivar</a>
+            {% else %}
+                <a href="/activar_cliente/{{cliente.0}}" class="btn btn-success">Activar</a>
+            {% endif %}
         </div> 
     </form>
 </card>

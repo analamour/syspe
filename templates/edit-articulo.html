@@ -25,10 +25,14 @@
                 <label for="exampleFormControlInput1" class="form-label">Stock Vendido</label>
                 <input type="text" name="stockVendido" placeholder="Stock Vendido" value ="{{articulo.3}}" class="form-control" readonly>
             </div>
-            <button type ="submit" class="btn btn-success btn-block">
-                Guardar
-            </button>
         </div> 
+            {% if articulo.estado == "inactivo" %}
+                <a href="/activar_articulo/{{articulo.0}}" class="btn btn-primary">Activar</a>
+            {% else %}
+                <a href="/enviar_historico/{{articulo.0}}" class="btn btn-warning">Enviar a histórico</a>
+            {% endif %}
+            
+            <button type="submit" class="btn btn-success btn-block">Guardar</button>
     </form>
 </card>
 <script>
