@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title class="titulo">Syspe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://bootswatch.com/4/materia/bootstrap.min.css">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-light">
+    
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">Syspe</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle disabled" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Clientes
+            </a>
+            <ul class="dropdown-menu show-menu">
+              <li><a class="dropdown-item" href='/altaCliente' >Alta Clientes</a></li>
+              <li><a class="dropdown-item" href='/listadoCliente'>Listado Clientes</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle disabled" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Pedidos
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/cargarventa">Carga de Pedido</a></li>
+              <li><a class="dropdown-item" href="/consultarPedido">Consulta de Pedido</a></li>
+            </ul>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle disabled" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+             Productos
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/altaProducto">Alta Producto</a></li>
+              <li><a class="dropdown-item" href="/inventario">Consulta de Stock</a></li>
+              
+            </ul>
+          </li>
+        </ul>
+        <form class="d-flex">
+            <form class="d-flex">
+                <button class="btn btn-outline-success me-2" type="button"><a href="/inicioSesion">Iniciar sesion</a></button>
+                <button class="btn btn-sm btn-outline-secondary" type="button"><a href="/registrarUsuario">Nuevo usuario</a></button>
+            </form>
+        </form>
+      </div>
+    </div>
+    
+    
+  </nav>
+  
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+      {% for message in messages %}
+          <div class="alert alert-info">
+              {{ message }}
+          </div>
+      {% endfor %}
+  {% endif %}
+{% endwith %}
+
+  
+  {% block body %}
+  {% endblock %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
