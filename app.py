@@ -3,21 +3,57 @@ from flask_mysqldb import MySQL
 from MySQLdb import IntegrityError
 from decimal import Decimal
 
+#Models
+from models.ModelUser import ModelUser
+
+#Entities
+from models.entities.User import User
+
 
 app = Flask(__name__)
 
 # Configuración de MySQL 
 app.config["MYSQL_HOST"] = 'localhost'
 app.config["MYSQL_USER"] = 'root'
-app.config["MYSQL_PASSWORD"] = '123'
+app.config["MYSQL_PASSWORD"] = 'Amiri$14'
 app.config["MYSQL_DB"] = 'syspe'
 mysql = MySQL(app)
 
 # Configuración
 app.secret_key = 'mysecretkey'
 
-# MODULO CLIENTES
+#Modulo LOGIN
 @app.route("/")
+def welcome():
+    return render_template('welcome.html')
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    if request.method=='POST':
+        username=request.form['username']
+        password=request.form['password']
+        #print(username)
+        #print(password)
+        user=User(0, username, password)
+        logged_user=ModelUser.login(mysql,user)
+        if logged_user != None:
+            if logged_user.password:
+                return redirect(url_for('Index'))
+            else:
+                flash('Invalid password')
+                return(render_template('login.html'))
+        else:
+            flash('User not found')
+            return(render_template('login.html'))
+    else:
+        return(render_template('login.html'))
+
+@app.route("/register")
+def register():
+    return('REGISTRATE')
+
+# MODULO CLIENTES
+@app.route("/home")
 def Index():
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM clientes')
