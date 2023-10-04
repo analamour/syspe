@@ -6,7 +6,7 @@ class ModelUser():
         try:
             cur=db.connection.cursor()
             sql=f"""SELECT id, username, password, fullname FROM usuarios 
-            WHERE username = {user.username}"""
+            WHERE username = '{user.username}'"""
             cur.execute(sql)
             row=cur.fetchone()
             if row != None:
