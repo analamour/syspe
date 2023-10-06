@@ -16,3 +16,19 @@ class ModelUser():
                 None
         except Exception as ex:
             raise Exception(ex)
+        
+    @classmethod
+    def get_by_id(self, db, id):
+        try:
+            cur=db.connection.cursor()
+            sql=f"""SELECT id, username, fullname FROM usuarios 
+            WHERE id = '{id}'"""
+            cur.execute(sql)
+            row=cur.fetchone()
+            if row != None:
+                logged_user=User(row[0], row[1],None, row[2])
+                return logged_user
+            else:
+                None
+        except Exception as ex:
+            raise Exception(ex)
