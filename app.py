@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mysqldb import MySQL
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from MySQLdb import IntegrityError
 from decimal import Decimal
 
@@ -19,13 +20,23 @@ app.config["MYSQL_PASSWORD"] = 'Amiri$14'
 app.config["MYSQL_DB"] = 'syspe'
 mysql = MySQL(app)
 
+login_manager_app=LoginManager(app)
+
+# Metodo que nos permite obtener los datos del usuario con la sesion iniciada
+@login_manager_app.user_loader
+def load_user(id):
+    return ModelUser.get_by_id(mysql,id)
+
 # Configuración
 app.secret_key = 'mysecretkey'
 
 #Modulo LOGIN
 @app.route("/")
 def welcome():
-    return render_template('welcome.html')
+    if login_user(current_user):
+        return redirect(url_for('Index'))
+    else:
+        return render_template('welcome.html')
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -38,6 +49,8 @@ def login():
         logged_user=ModelUser.login(mysql,user)
         if logged_user != None:
             if logged_user.password:
+                login_user(logged_user)
+                print(login_user((current_user)))
                 return redirect(url_for('Index'))
             else:
                 flash('Invalid password')
@@ -48,12 +61,18 @@ def login():
     else:
         return(render_template('login.html'))
 
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('welcome'))
+
 @app.route("/register")
 def register():
     return('REGISTRATE')
 
 # MODULO CLIENTES
 @app.route("/home")
+@login_required
 def Index():
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM clientes')
@@ -61,10 +80,12 @@ def Index():
     return render_template('index.html', contacts=data)
 
 @app.route("/altaCliente")
+@login_required
 def altaCliente():
     return render_template('altaCliente.html')
 
 @app.route("/listadoCliente")
+@login_required
 def listadoCliente():
     cur = mysql.connection.cursor()
     
@@ -80,6 +101,7 @@ def listadoCliente():
 
 
 @app.route("/inactivar_cliente/<id>")
+@login_required
 def inactivar_cliente(id):
     cur = mysql.connection.cursor()
     cur.execute('UPDATE clientes SET estado="inactivo" WHERE id_cliente = %s', (id,))
@@ -88,6 +110,7 @@ def inactivar_cliente(id):
     return redirect(url_for('listadoCliente'))
 
 @app.route("/activar_cliente/<string:id>")
+@login_required
 def activar_cliente(id):
     cur = mysql.connection.cursor()
     cur.execute('UPDATE clientes SET estado="activo" WHERE id_cliente = %s', (id,))
@@ -97,6 +120,7 @@ def activar_cliente(id):
 
 
 @app.route("/add_cliente", methods=['POST'])
+@login_required
 def add_cliente():
     if request.method == 'POST':
         razonsocial = request.form['razonsocial']
@@ -112,6 +136,7 @@ def add_cliente():
         return redirect(url_for('altaCliente'))
 
 @app.route("/edit/<id>")
+@login_required
 def get_cliente(id):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM clientes WHERE id_cliente = %s', (id,))
@@ -119,6 +144,7 @@ def get_cliente(id):
     return render_template('edit-contact.html', cliente=data[0])
 
 @app.route('/update/<id>', methods=['POST'])
+@login_required
 def update_clientes(id):
     if request.method == 'POST':
         razonsocial = request.form['razonsocial']
@@ -143,6 +169,7 @@ def update_clientes(id):
         return redirect(url_for('listadoCliente'))
 
 @app.route("/delete/<string:id>")
+@login_required
 def delete_cliente(id):
     cur = mysql.connection.cursor()
     try:
@@ -157,6 +184,7 @@ def delete_cliente(id):
     return redirect(url_for('listadoCliente'))
 
 @app.route('/buscar_cliente', methods=['GET'])
+@login_required
 def buscar_cliente():
     razon_social = request.args.get('razon_social', default="", type=str)
     cur = mysql.connection.cursor()
@@ -182,10 +210,12 @@ def buscar_cliente():
 
 # MODULO ARTICULOS
 @app.route("/altaProducto")
+@login_required
 def altaProducto():
     return render_template('altaProducto.html')
 
 @app.route("/add_producto", methods=['POST'])
+@login_required
 def add_producto():
     if request.method == 'POST':
         producto = request.form['producto']
@@ -200,6 +230,7 @@ def add_producto():
         return redirect(url_for('altaProducto'))
     
 @app.route("/inventario")
+@login_required
 def inventario():
     cur = mysql.connection.cursor()
     cur.execute('''
@@ -217,6 +248,7 @@ def inventario():
 
 
 @app.route("/delete_articulo/<string:id_articulo>")
+@login_required
 def delete_articulo(id_articulo):
     cur = mysql.connection.cursor()
     try:
@@ -232,6 +264,7 @@ def delete_articulo(id_articulo):
 
 
 @app.route("/edit_articulo/<id_articulo>")
+@login_required
 def get_articulo(id_articulo):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM articulo WHERE id_articulo = %s', (int(id_articulo),))
@@ -239,6 +272,7 @@ def get_articulo(id_articulo):
     return render_template('edit-articulo.html', articulo=data[0])
 
 @app.route("/update_articulo/<id_articulo>", methods=['POST'])
+@login_required
 def update_articulo(id_articulo):
     detalle = request.form['detalle']
     precio = request.form['precio']
@@ -254,6 +288,7 @@ def update_articulo(id_articulo):
     return redirect(url_for('inventario'))
 
 @app.route("/listadoProducto")
+@login_required
 def listadoProducto():
     cur = mysql.connection.cursor()
     
@@ -268,6 +303,7 @@ def listadoProducto():
     return render_template('listadoProducto.html', activos=productos_activos, inactivos=productos_inactivos)
 
 @app.route('/enviar_historico/<id_articulo>')
+@login_required
 def enviar_historico(id_articulo):
     try:
         cur = mysql.connection.cursor()
@@ -279,6 +315,7 @@ def enviar_historico(id_articulo):
     return redirect(url_for('listadoProducto'))
 
 @app.route('/activar_articulo/<id_articulo>')
+@login_required
 def activar_articulo(id_articulo):
     try:
         cur = mysql.connection.cursor()
@@ -290,9 +327,8 @@ def activar_articulo(id_articulo):
     return redirect(url_for('listadoProducto'))
 
 #MODULO VENTAS
-
-
 @app.route("/cargarventa", methods=["GET", "POST"])
+@login_required
 def cargarventa():
     cur = mysql.connection.cursor()
 
@@ -316,6 +352,7 @@ def cargarventa():
         return render_template('cargarventa.html', articulo=articulo_data, clientes=clientes_data)
 
 @app.route("/cargarstock")
+@login_required
 def cargarstock():
     cur = mysql.connection.cursor()
     cur.execute ('SELECT id_articulo, producto FROM articulo')
@@ -324,6 +361,7 @@ def cargarstock():
 
 
 @app.route('/restar_stock_vendido', methods=['POST'])
+@login_required
 def restar_stock_vendido():
     if request.method == 'POST':
         cliente_id = request.form.get('clienteSeleccionado')
@@ -360,6 +398,7 @@ def restar_stock_vendido():
 
     
 @app.route("/consultarPedido")
+@login_required
 def consultarPedido():
     cur = mysql.connection.cursor()
     cur.execute('''
@@ -393,6 +432,7 @@ def consultarPedido():
 
 
 @app.route("/edit_pedido/<id>")
+@login_required
 def edit_pedido(id):
     cur = mysql.connection.cursor()
     
@@ -408,6 +448,7 @@ def edit_pedido(id):
 
 
 @app.route("/delete_pedido/<id>")
+@login_required
 def delete_pedido(id):
     cur = mysql.connection.cursor()
     try:
@@ -424,6 +465,7 @@ def delete_pedido(id):
 
 
 @app.route('/update_pedido/<id>', methods=['POST'])
+@login_required
 def update_pedido(id):
     if request.method == 'POST':
         id_cliente = request.form['clienteSeleccionado']  # O el nombre del campo que corresponda
@@ -442,6 +484,7 @@ def update_pedido(id):
 
 
 @app.route("/detalle_pedido/<id_pedido>")
+@login_required
 def detalle_pedido(id_pedido):
     cur = mysql.connection.cursor()
 
@@ -476,6 +519,7 @@ def detalle_pedido(id_pedido):
     return render_template('detalle-pedido.html', detalles=detalles, total=total)
 
 @app.route('/buscar', methods=['GET'])
+@login_required
 def buscar_pedidos():
     nombre_cliente = request.args.get('nombre_cliente', default="", type=str)
     id_pedido = request.args.get('id_pedido', default="", type=str)
@@ -506,6 +550,7 @@ def buscar_pedidos():
  
 
 @app.route('/pedidos_preparados/<int:id_pedido>', methods=['GET'])
+@login_required
 def pedidos_preparados(id_pedido):
     cur = mysql.connection.cursor()
     cur.execute('UPDATE pedidos SET estado = "preparado" WHERE id_pedido = %s', (id_pedido,))
@@ -513,6 +558,7 @@ def pedidos_preparados(id_pedido):
     return redirect(url_for('consultarPedido'))
 
 @app.route('/pedidos_anulados/<int:id_pedido>', methods=['GET'])
+@login_required
 def pedidos_anulados(id_pedido):
     cur = mysql.connection.cursor()
     cur.execute('UPDATE pedidos SET estado = "anulado" WHERE id_pedido = %s', (id_pedido,))
@@ -520,6 +566,7 @@ def pedidos_anulados(id_pedido):
     return redirect(url_for('consultarPedido'))
 
 @app.route('/pedidos_pendientes/<int:id_pedido>', methods=['GET'])
+@login_required
 def pedidos_pendientes(id_pedido):
     cur = mysql.connection.cursor()
     cur.execute('UPDATE pedidos SET estado = "pendiente" WHERE id_pedido = %s', (id_pedido,))
@@ -528,6 +575,7 @@ def pedidos_pendientes(id_pedido):
 
 
 @app.route('/agregar_stock_ingresado', methods=['POST'])
+@login_required
 def agregar_stock_ingresado():
     if request.method == 'POST':
         codigoarticulo = request.form['codigoarticulo']
@@ -547,6 +595,7 @@ def agregar_stock_ingresado():
         return redirect(url_for('inventario'))
 
 @app.route('/get_pedidos/<int:id_cliente>')
+@login_required
 def get_pedidos(id_cliente):
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM pedido WHERE id_cliente = %s', [id_cliente])
@@ -554,6 +603,7 @@ def get_pedidos(id_cliente):
     return jsonify(pedidos)
 
 @app.route('/crear_pedido', methods=['POST'])
+@login_required
 def crear_pedido():
     if request.method == 'POST':
         cliente_id = request.form.get('cliente_id')
@@ -616,7 +666,14 @@ def crear_pedido():
             flash('Hubo un error al crear el pedido: ' + str(e))
 
         return redirect(url_for('consultarPedido'))
-      
+
+def status_401(error):
+    return redirect(url_for('welcome'))
+
+def status_404(error):
+    return "<h1>Pagina no encontrada</h1>",404    
 
 if __name__ == '__main__':
+    app.register_error_handler(401,status_401)
+    app.register_error_handler(404,status_404)
     app.run(port=3000, debug=True)
