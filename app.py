@@ -371,14 +371,12 @@ def edit_pedido(id):
     return render_template('edit-pedido.html', pedido=pedido_data, clientes=clientes)
 
 
-@app.route("/delete_pedido/<id>")
-def delete_pedido(id):
+@app.route("/anular_pedido/<id>")
+def anular_pedido(id):
     cur = mysql.connection.cursor()
     try:
         # Primero eliminar detalles
-        cur.execute('DELETE FROM detallespedido WHERE id_pedido = %s', (id,))
-        # Luego eliminar el pedido
-        cur.execute('DELETE FROM pedidos WHERE id_pedido = %s', (id,))
+        cur.execute('UPDATE pedidos SET estado = "anulado" WHERE id_pedido = %s', (id,))
         mysql.connection.commit()
         flash('Pedido eliminado correctamente!')
     except Exception as e:

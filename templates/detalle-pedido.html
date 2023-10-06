@@ -55,7 +55,8 @@
     <button type="submit" class="btn btn-secondary mx-2">Guardar</button>
     <!-- Botón para ir a la página de edición del pedido -->
     <a href="{{ url_for('edit_pedido', id=detalles[0].0) }}" class="btn btn-secondary mx-2">Editar</a>
-    <a href="{{ url_for('delete_pedido', id=detalles[0].0) }}" class="btn btn-danger mx-2" onclick="return confirm('¿Estás seguro de que deseas eliminar?');">Eliminar</a>
+    <a href="{{ url_for('anular_pedido', id=detalles[0].0) }}" class="btn btn-warning mx-2" onclick="return confirm('¿Estás seguro de que deseas anular este pedido?');">Anular</a>
+
     <button onclick="imprimirPedido()" class="btn btn-success mx-2">Imprimir Pedido</button>
     
 </div>
