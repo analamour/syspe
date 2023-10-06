@@ -47,10 +47,25 @@
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="/altaProducto">Alta Producto</a></li>
               <li><a class="dropdown-item" href="/inventario">Consulta de Stock</a></li>
-              
             </ul>
           </li>
         </ul>
+        <form class="d-flex">
+          <form class="d-flex">
+            <div class="btn-group">
+              <button class="btn btn-danger btn-lg" type="button">
+                {{ current_user.fullname }}
+              </button>
+              <button type="button" class="btn btn-lg btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle Dropdown</span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Perfil</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('logout') }}">Cerrar sesion</a></li>
+              </ul>
+            </div>
+          </form>
+      </form>
       </div>
     </div>
     
