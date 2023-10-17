@@ -3,6 +3,7 @@ from flask_mysqldb import MySQL
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from MySQLdb import IntegrityError
 from decimal import Decimal
+from werkzeug.security import generate_password_hash
 
 #Models
 from models.ModelUser import ModelUser
@@ -17,7 +18,7 @@ app = Flask(__name__)
 app.config["MYSQL_HOST"] = 'localhost'
 app.config["MYSQL_USER"] = 'root'
 app.config["MYSQL_PASSWORD"] = 'Amiri$14'
-app.config["MYSQL_DB"] = 'syspe'
+app.config["MYSQL_DB"] = 'syspe2'
 mysql = MySQL(app)
 
 login_manager_app=LoginManager(app)
@@ -66,9 +67,23 @@ def logout():
     logout_user()
     return redirect(url_for('welcome'))
 
-@app.route("/register")
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    return('REGISTRATE')
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        apellido = request.form['apellido']
+        direccion = request.form['domicilio']
+        cuit = request.form['cuit']
+        mail = request.form['email']
+        username= request.form['username']
+        password= generate_password_hash(request.form['password'])
+        cur = mysql.connection.cursor()
+        cur.execute(f'INSERT INTO usuarios (username, fullname, password, cuit, direccion) VALUES ("{username}","{nombre} {apellido}","{password}","{cuit}","{direccion}")')
+        mysql.connection.commit()
+        flash("Nuevo usuario registrado")
+        return redirect(url_for('login'))
+    else:
+        return render_template('registro.html')
 
 # MODULO CLIENTES
 @app.route("/home")

@@ -1,3 +1,6 @@
+{% extends 'layout-nonlogged.html' %}
+{% block body %}
+
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 {% for message in messages %}
@@ -53,3 +56,5 @@
     </form>
 </body>
 </html>
+
+{% endblock %}
