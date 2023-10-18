@@ -1,35 +1,80 @@
 {% extends 'layout.html' %}
-
 {% block body %}
-<h2>Editar Pedido</h2>
 
-<form action="/update_pedido/{{ pedido.id_pedido }}" method="post">
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="text-center">Detalle del Pedido</h2>
 
-    <!-- Desplegable de clientes -->
-    <div class="form-group">
-        <label for="clienteSeleccionado">Cliente:</label>
-        <select name="clienteSeleccionado" id="clienteSeleccionado" class="form-select">
-            <option value="">Seleccione un cliente</option>
-            {% for cliente in clientes %}
-                <option value="{{ cliente[0] }}" 
-                {% if cliente[0] == pedido.id_cliente %}selected{% endif %}
-                    {{ cliente[1] }}
-                </option>
-            {% endfor %}
-        </select>
+        <!-- Cabecera con detalles del pedido -->
+        {% if detalles %}
+        <div class="card text-center mb-4">
+            <div class="card-header">
+                {{ detalles[0].4 }} <!-- Razon social del cliente -->
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Pedido N°: {{ detalles[0].0 }}</h5> <!-- Número de pedido -->
+                <p class="card-text">Fecha: {{ detalles[0].1 }}</p> <!-- Fecha de pedido -->
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Detalle del pedido -->
+        <form action="/update_detalle_pedido/{{ detalles[0].0 }}" method="post"> <!-- Suponiendo que tendrás una ruta para actualizar el detalle del pedido -->
+            <table class="table table-striped table-bordered bg-white table-sm">
+                <thead>
+                    <tr>
+                        <td>Producto</td>
+                        <td>Precio Unitario</td>
+                        <td>Cantidad</td>
+                        <td>Subtotal</td>
+                        <td>Acciones</td>
+                    </tr>
+                </thead>
+                <tbody>
+                
+                    {% for detalle in detalles %}
+                        <tr>
+                            <td>{{ detalle.1}}</td> <!-- producto -->
+                            <td>{{ detalle.3 }}</td> <!-- precio_unitario -->
+                            <td>
+                                <input type="number" name="cantidad_{{ detalle.2 }}" value="{{ detalle.2 }}" class="form-control" onchange="recalcularSubtotal(this)" /> <!-- input para cantidad -->
+                            </td> <!-- cantidad -->
+                            <td>{{ detalle.4 }}</td> <!-- subtotal -->
+                            <td>
+                                <button type="button" onclick="eliminarFila(this)">X</button>
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+              
+                <tfoot>
+                    <tr>
+                        <td colspan="4" style="text-align: right; font-weight: bold;">Importe Total:</td>
+                        <td style="border: 2px solid black; text-align: right; font-weight: bold;">{{ total }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <div class="text-center mt-5"> 
+                <button type="submit" class="btn btn-secondary mx-2 no-print">Guardar Cambios</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <!-- Fecha del pedido -->
-    <div class="form-group">
-        <label for="fecha_pedido">Fecha del Pedido:</label>
-        <input type="date" id="fecha_pedido" name="fecha_pedido" value="{{ pedido.fecha }}" class="form-control">
-    </div>
+<script>
+    function eliminarFila(button) {
+        var fila = button.parentNode.parentNode;
+        fila.parentNode.removeChild(fila);
+    }
 
-    <!-- Botón de envío -->
-    <div class="form-group mt-3">
-        <input type="submit" value="Actualizar Pedido" class="btn btn-primary">
-    </div>
-
-</form>
+    function recalcularSubtotal(input) {
+        var fila = input.parentNode.parentNode;
+        var precioUnitario = parseFloat(fila.children[1].innerText); // Obtiene el precio unitario de la fila
+        var cantidad = parseFloat(input.value); // Obtiene el valor de la cantidad
+        var subtotal = precioUnitario * cantidad; 
+        fila.children[3].innerText = subtotal.toFixed(2); // Asigna el nuevo subtotal a la fila
+    }
+</script>
 
 {% endblock %}

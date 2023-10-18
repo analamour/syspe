@@ -37,7 +37,7 @@
                         <td>{{ detalle.7 }}</td> <!-- precio_unitario -->
                         <td>{{ detalle.4 }}</td> <!-- cantidad -->
                         <td>{{ detalle.5 }}</td> <!-- subtotal -->
-                    </tr>s
+                    </tr>
                 {% endfor %}
             </tbody>
         <tfoot>
@@ -52,15 +52,24 @@
 
 <div class="text-center mt-5"> 
     
-    <button type="submit" class="btn btn-secondary mx-2">Guardar</button>
+    <button type="submit" class="btn btn-secondary mx-2 no-print">Guardar</button>
     <!-- Botón para ir a la página de edición del pedido -->
-    <a href="{{ url_for('edit_pedido', id=detalles[0].0) }}" class="btn btn-secondary mx-2">Editar</a>
-    <a href="{{ url_for('delete_pedido', id=detalles[0].0) }}" class="btn btn-danger mx-2" onclick="return confirm('¿Estás seguro de que deseas eliminar?');">Eliminar</a>
-    <button onclick="imprimirPedido()" class="btn btn-success mx-2">Imprimir Pedido</button>
+    <a href="{{ url_for('edit_pedido', id=detalles[0].0) }}" class="btn btn-secondary mx-2 no-print">Editar</a>
+    <a href="{{ url_for('delete_pedido', id=detalles[0].0) }}" class="btn btn-danger mx-2 no-print" onclick="return confirm('¿Estás seguro de que deseas anular?');">Anular</a>
+    <button onclick="confirmarPrepararPedido()" class="btn btn-success mx-2 no-print">Preparar Pedido</button>
+
     
 </div>
 
 <script>
+    
+    function confirmarPrepararPedido() {
+        var r = confirm("¿Estás seguro que quieres preparar este pedido?");
+        if (r == true) {
+            imprimirPedido();
+        }
+    }
+
     function imprimirPedido() {
         window.print();
     }

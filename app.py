@@ -17,8 +17,8 @@ app = Flask(__name__)
 # Configuración de MySQL 
 app.config["MYSQL_HOST"] = 'localhost'
 app.config["MYSQL_USER"] = 'root'
-app.config["MYSQL_PASSWORD"] = 'Amiri$14'
-app.config["MYSQL_DB"] = 'syspe2'
+app.config["MYSQL_PASSWORD"] = '1234'
+app.config["MYSQL_DB"] = 'syspe'
 mysql = MySQL(app)
 
 login_manager_app=LoginManager(app)
@@ -260,6 +260,26 @@ def inventario():
     data = cur.fetchall()
     return render_template('inventario.html', articulo=data)
 
+@app.route("/buscar_producto", methods=["GET"])
+@login_required
+def buscar_producto():
+    producto = request.args.get('producto')
+    
+    cur = mysql.connection.cursor()
+    query = '''
+        SELECT 
+            a.id_articulo, a.producto, a.detalle, a.precio, a.stockDisponible, 
+            IFNULL(SUM(d.cantidad), 0) as stockVendido, 
+            (a.stockDisponible - IFNULL(SUM(d.cantidad), 0)) as stockActual
+        FROM articulo a
+        LEFT JOIN detallesPedido d ON a.id_articulo = d.id_articulo
+        WHERE a.producto LIKE %s
+        GROUP BY a.id_articulo, a.producto, a.detalle, a.precio, a.stockDisponible;
+    '''
+    cur.execute(query, ('%' + producto + '%',))
+    
+    data = cur.fetchall()
+    return render_template('inventario.html', articulo=data)
 
 
 @app.route("/delete_articulo/<string:id_articulo>")
@@ -350,12 +370,20 @@ def cargarventa():
     if request.method == "POST":
         producto_ids = request.form.getlist('producto_id[]')
         cantidades = request.form.getlist('cantidad[]')
+        id_cliente = request.form.get('id_cliente')  # Asumo que tienes un campo para el ID del cliente en el formulario.
 
         total_venta = 0
         for producto_id, cantidad in zip(producto_ids, cantidades):
             cur.execute("SELECT precio FROM articulo WHERE id_articulo=%s", (producto_id,))
             precio = cur.fetchone()[0]
             total_venta += precio * int(cantidad)
+
+        # Guardando el pedido en la base de datos
+        cur.execute('''
+            INSERT INTO pedidos (id_cliente, fecha_pedido, precio_final, estado) 
+            VALUES (%s, NOW(), %s, "pendiente")
+        ''', (id_cliente, total_venta))
+        mysql.connection.commit()
 
         return render_template('confirmacion.html', total=total_venta)
 
@@ -365,6 +393,7 @@ def cargarventa():
         cur.execute('SELECT id_articulo, producto, precio FROM articulo WHERE stockDisponible > 0')
         articulo_data = cur.fetchall()
         return render_template('cargarventa.html', articulo=articulo_data, clientes=clientes_data)
+
 
 @app.route("/cargarstock")
 @login_required
@@ -436,7 +465,7 @@ def consultarPedido():
         LEFT JOIN 
             articulo a ON d.id_articulo = a.id_articulo
         ORDER BY 
-            p.fecha_pedido DESC;       
+            p.id_pedido DESC;       
     ''')
     data = cur.fetchall()
     pedidos_preparados = [pedido for pedido in data if pedido[8] == 'preparado']
@@ -455,11 +484,22 @@ def edit_pedido(id):
     cur.execute('SELECT * FROM pedidos WHERE id_pedido = %s', (id,))
     pedido_data = cur.fetchone()
     
+    # Obtener detalles del pedido
+    cur.execute('''
+        SELECT d.id_articulo, a.producto, d.cantidad, d.subtotal, a.precio 
+        FROM detallesPedido d
+        JOIN articulo a ON d.id_articulo = a.id_articulo
+        WHERE d.id_pedido = %s;
+    ''', (id,))
+    detalles = cur.fetchall()
+    
     # Obtener todos los clientes
     cur.execute('SELECT id_cliente, razonsocial FROM Clientes')
     clientes = cur.fetchall()
     
-    return render_template('edit-pedido.html', pedido=pedido_data, clientes=clientes)
+    return render_template('edit-pedido.html', pedido=pedido_data, clientes=clientes, detalles=detalles)
+
+
 
 
 @app.route("/delete_pedido/<id>")
@@ -467,25 +507,24 @@ def edit_pedido(id):
 def delete_pedido(id):
     cur = mysql.connection.cursor()
     try:
-        # Primero eliminar detalles
-        cur.execute('DELETE FROM detallespedido WHERE id_pedido = %s', (id,))
-        # Luego eliminar el pedido
-        cur.execute('DELETE FROM pedidos WHERE id_pedido = %s', (id,))
+        # Cambiamos el estado del pedido a "anulado"
+        cur.execute('UPDATE pedidos SET estado = "anulado" WHERE id_pedido = %s', (id,))
         mysql.connection.commit()
-        flash('Pedido eliminado correctamente!')
+        flash('Pedido anulado correctamente!')
     except Exception as e:
         mysql.connection.rollback()
-        flash('Error al eliminar el pedido: ' + str(e))
+        flash('Error al anular el pedido: ' + str(e))
     return redirect(url_for('consultarPedido'))
+
 
 
 @app.route('/update_pedido/<id>', methods=['POST'])
 @login_required
 def update_pedido(id):
-    if request.method == 'POST':
-        id_cliente = request.form['clienteSeleccionado']  # O el nombre del campo que corresponda
-        
-        cur = mysql.connection.cursor()
+    id_cliente = request.form['clienteSeleccionado']  # O el nombre del campo que corresponda
+    
+    cur = mysql.connection.cursor()
+    try:
         cur.execute("""
             UPDATE pedidos
             SET id_cliente = %s
@@ -493,8 +532,15 @@ def update_pedido(id):
         """, (id_cliente, id))
         
         mysql.connection.commit()
-        flash('pedido actualizado correctamente!')
-        return redirect(url_for('consultarPedido'))
+        flash('Pedido actualizado correctamente!')
+    except Exception as e:
+        mysql.connection.rollback()
+        flash('Error al actualizar el pedido: ' + str(e))
+    finally:
+        cur.close()
+        
+    return redirect(url_for('consultarPedido'))
+
 
 
 
@@ -533,6 +579,57 @@ def detalle_pedido(id_pedido):
     # Pasa el total a la plantilla
     return render_template('detalle-pedido.html', detalles=detalles, total=total)
 
+
+@app.route('/update_detalle_pedido/<id>', methods=['POST'])
+@login_required
+def update_detalle_pedido(id):
+    # Obtener los datos del formulario
+    productos = request.form.getlist('producto[]')
+    precios_unitarios = request.form.getlist('precio_unitario[]')
+    cantidades = request.form.getlist('cantidad[]')
+    subtotales = request.form.getlist('subtotal[]')
+
+    try:
+        cur = mysql.connection.cursor()
+
+        # Suponiendo que eliminas todos los detalles y vuelves a insertar para simplificar
+        cur.execute("DELETE FROM detallesPedido WHERE id_pedido = %s", [id])
+
+        for producto, precio_unitario, cantidad, subtotal in zip(productos, precios_unitarios, cantidades, subtotales):
+            # Aquí debes tener algún identificador para saber qué producto es
+            # Insertar el nuevo detalle
+            cur.execute("""
+                INSERT INTO detallesPedido (id_pedido, id_articulo, cantidad, subtotal) 
+                VALUES (%s, %s, %s, %s)
+            """, (id, producto, cantidad, subtotal))
+
+            # Suponiendo que debes actualizar el stock de articulo (si eso es parte de tu lógica)
+            cur.execute("""
+                UPDATE articulo 
+                SET stockDisponible = stockDisponible - %s 
+                WHERE id_articulo = %s
+            """, (cantidad, producto))
+
+        # Actualizar el precio total del pedido
+        precio_final = sum([float(subtotal) for subtotal in subtotales])
+        cur.execute("""
+            UPDATE pedidos
+            SET precio_final = %s
+            WHERE id_pedido = %s
+        """, (precio_final, id))
+        
+        mysql.connection.commit()
+        flash('Detalle del pedido actualizado correctamente!')
+    except Exception as e:
+        mysql.connection.rollback()
+        flash('Error al actualizar el detalle del pedido: ' + str(e))
+    finally:
+        cur.close()
+        
+    return redirect(url_for('consultarPedido'))
+
+
+
 @app.route('/buscar', methods=['GET'])
 @login_required
 def buscar_pedidos():
@@ -564,13 +661,43 @@ def buscar_pedidos():
 
  
 
-@app.route('/pedidos_preparados/<int:id_pedido>', methods=['GET'])
+@app.route("/preparar_pedido/<id>", methods=["GET"])
 @login_required
-def pedidos_preparados(id_pedido):
+def preparar_pedido(id):
     cur = mysql.connection.cursor()
-    cur.execute('UPDATE pedidos SET estado = "preparado" WHERE id_pedido = %s', (id_pedido,))
-    mysql.connection.commit()
-    return redirect(url_for('consultarPedido'))
+    try:
+        # Cambiar el estado del pedido a "preparado"
+        cur.execute('UPDATE pedidos SET estado = "preparado" WHERE id_pedido = %s', (id,))
+        mysql.connection.commit()
+
+        # Ahora, puedes obtener los detalles del pedido para imprimir (esto es solo un ejemplo)
+        cur.execute('''
+            SELECT 
+                p.id_pedido, 
+                p.fecha_pedido,
+                c.razonsocial,
+                d.cantidad,
+                a.producto,
+                a.precio
+            FROM 
+                pedidos p
+            JOIN 
+                Clientes c ON p.id_cliente = c.id_cliente
+            LEFT JOIN 
+                detallesPedido d ON p.id_pedido = d.id_pedido
+            LEFT JOIN 
+                articulo a ON d.id_articulo = a.id_articulo
+            WHERE
+                p.id_pedido = %s;
+        ''', (id,))
+        detalles_pedido = cur.fetchall()
+
+        # Puedes usar estos detalles para renderizar un template específico para impresión
+        return render_template('detalle-pedido.html', detalles=detalles_pedido)
+    except Exception as e:
+        flash('Error al preparar el pedido: ' + str(e))
+        return redirect(url_for('consultarPedido'))
+
 
 @app.route('/pedidos_anulados/<int:id_pedido>', methods=['GET'])
 @login_required

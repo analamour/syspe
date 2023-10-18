@@ -43,11 +43,22 @@ img  {
     margin-left: 10px;
 }
 
-/* Ajustar el tamaño si es necesario */
 .producto-row select, 
 .producto-row input {
     height: 30px; 
 }
 .producto-row select.articuloSelect {
     margin-right: 20px;  
+}
+.form-group{
+    padding-top: 10px;
+}
+.form-select .form-control{
+    padding-top: 10px;
+}
+
+@media print {
+    .no-print {
+        display: none;
+    }
 }

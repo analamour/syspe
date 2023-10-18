@@ -24,16 +24,16 @@
                <div class="form-group">
                    <input type="text" name="mail" placeholder="Email" value ="{{cliente.6}}" class="form-control">
                </div>
-            <button type ="submit" class="btn btn-success btn-block">
+            <button type ="submit" class="btn btn-desplazado btn-success btn-block">
                 Guardar
             </button>
         
             </div>
             <!-- botón para inactivar -->
             {% if cliente.7 == "activo" %}  <!-- Si el cliente está activo -->
-                <a href="/inactivar_cliente/{{cliente.0}}" class="btn btn-warning">Inactivar</a>
+                <a href="/inactivar_cliente/{{cliente.0}}" class="btn btn-desplazado btn-warning">Inactivar</a>
             {% else %}
-                <a href="/activar_cliente/{{cliente.0}}" class="btn btn-success">Activar</a>
+                <a href="/activar_cliente/{{cliente.0}}" class="btn btn-desplazado btn-success">Activar</a>
             {% endif %}
         </div> 
     </form>
