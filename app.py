@@ -634,10 +634,9 @@ def update_detalle_pedido(id):
 @login_required
 def buscar_pedidos():
     nombre_cliente = request.args.get('nombre_cliente', default="", type=str)
-    id_pedido = request.args.get('id_pedido', default="", type=str)
-    cur = mysql.connection.cursor()
-
-    cur.execute('''
+    id_pedido = request.args.get('id_pedido', default=None, type=str)
+    
+    query = '''
     SELECT 
         p.id_pedido, 
         p.fecha_pedido,
@@ -650,14 +649,24 @@ def buscar_pedidos():
     JOIN 
         Clientes c ON p.id_cliente = c.id_cliente
     WHERE 
-        c.razonsocial LIKE %s AND p.id_pedido LIKE %s
-    ''', ('%' + nombre_cliente + '%', '%' + id_pedido + '%',))
+        c.razonsocial LIKE %s
+    '''
+    
+    params = ['%' + nombre_cliente + '%']
+    
+    if id_pedido:
+        query += " AND p.id_pedido = %s"
+        params.append(id_pedido)
+    
+    cur = mysql.connection.cursor()
+    cur.execute(query, params)
     
     data = cur.fetchall()  # Obtener los resultados de la consulta
     cur.close()            # Cerrar el cursor
 
     # Devolver los resultados renderizados en la plantilla
     return render_template('consultarPedido.html', pedidos=data)
+
 
  
 
