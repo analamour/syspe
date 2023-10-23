@@ -17,8 +17,8 @@ app = Flask(__name__)
 # Configuración de MySQL 
 app.config["MYSQL_HOST"] = 'localhost'
 app.config["MYSQL_USER"] = 'root'
-app.config["MYSQL_PASSWORD"] = '1234'
-app.config["MYSQL_DB"] = 'syspe'
+app.config["MYSQL_PASSWORD"] = 'Amiri$14'
+app.config["MYSQL_DB"] = 'syspe2'
 mysql = MySQL(app)
 
 login_manager_app=LoginManager(app)
@@ -74,14 +74,24 @@ def register():
         apellido = request.form['apellido']
         direccion = request.form['domicilio']
         cuit = request.form['cuit']
-        mail = request.form['email']
-        username= request.form['username']
+        username= request.form['email']
         password= generate_password_hash(request.form['password'])
         cur = mysql.connection.cursor()
-        cur.execute(f'INSERT INTO usuarios (username, fullname, password, cuit, direccion) VALUES ("{username}","{nombre} {apellido}","{password}","{cuit}","{direccion}")')
-        mysql.connection.commit()
-        flash("Nuevo usuario registrado")
-        return redirect(url_for('login'))
+        cur.execute(f'SELECT * FROM usuarios WHERE  username = "{username}"')
+        dataMail = cur.fetchone()
+        cur.execute(f'SELECT * FROM usuarios WHERE cuit = "{cuit}"')
+        dataCuit = cur.fetchone()
+        if dataMail != None:
+            flash("Direccion de email ya registrada. Debera iniciar sesion para acceder.")
+            return render_template('registro.html')
+        elif dataCuit != None:
+            flash("CUIT ya registrado. Debera iniciar sesion para acceder.")
+            return render_template('registro.html')
+        else:
+            cur.execute(f'INSERT INTO usuarios (username, fullname, password, cuit, direccion) VALUES ("{username}","{nombre} {apellido}","{password}","{cuit}","{direccion}")')
+            mysql.connection.commit()
+            flash("Nuevo usuario registrado. Inicie sesion para continuar.")
+            return redirect(url_for('login'))
     else:
         return render_template('registro.html')
 
