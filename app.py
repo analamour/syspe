@@ -258,17 +258,17 @@ def add_producto():
 @login_required
 def inventario():
     cur = mysql.connection.cursor()
-    cur.execute('''
-        SELECT 
-            a.id_articulo, a.producto, a.detalle, a.precio, a.stockDisponible, 
-            IFNULL(SUM(d.cantidad), 0) as stockVendido, 
-            (a.stockDisponible - IFNULL(SUM(d.cantidad), 0)) as stockActual
-    FROM articulo a
-    LEFT JOIN detallesPedido d ON a.id_articulo = d.id_articulo
-    GROUP BY a.id_articulo, a.producto, a.detalle, a.precio, a.stockDisponible;
-    ''')
-    data = cur.fetchall()
-    return render_template('inventario.html', articulo=data)
+    
+    # Consulta para productos activos
+    cur.execute('SELECT * FROM articulo WHERE estado = "activo"')
+    productos_activos = cur.fetchall()
+    
+    # Consulta para productos inactivos
+    cur.execute('SELECT * FROM articulo WHERE estado = "inactivo"')
+    productos_inactivos = cur.fetchall()
+    
+    return render_template('inventario.html', activos=productos_activos, inactivos=productos_inactivos)
+
 
 @app.route("/buscar_producto", methods=["GET"])
 @login_required
@@ -288,8 +288,11 @@ def buscar_producto():
     '''
     cur.execute(query, ('%' + producto + '%',))
     
-    data = cur.fetchall()
-    return render_template('inventario.html', articulo=data)
+    productos_buscados = cur.fetchall()
+    productos_activos = [prod for prod in productos_buscados if prod[7] == "activo"]
+    productos_inactivos = [prod for prod in productos_buscados if prod[7] == "inactivo"]
+    
+    return render_template('inventario.html', activos=productos_activos, inactivos=productos_inactivos)
 
 
 @app.route("/delete_articulo/<string:id_articulo>")
@@ -345,7 +348,7 @@ def listadoProducto():
     cur.execute('SELECT * FROM articulo WHERE estado = "inactivo"')
     productos_inactivos = cur.fetchall()
     
-    return render_template('listadoProducto.html', activos=productos_activos, inactivos=productos_inactivos)
+    return render_template('inventario.html', activos=productos_activos, inactivos=productos_inactivos)
 
 @app.route('/enviar_historico/<id_articulo>')
 @login_required
