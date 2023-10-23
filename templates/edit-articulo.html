@@ -26,11 +26,13 @@
                 <input type="text" name="stockVendido" placeholder="Stock Vendido" value ="{{articulo.3}}" class="form-control" readonly>
             </div>
         </div> 
-            {% if articulo.estado == "inactivo" %}
-                <a href="/activar_articulo/{{articulo.0}}" class="btn btn-primary">Activar</a>
+        <td>
+            {% if articulo.7 == "activo" %}  <!-- Si el artículo está activo -->
+            <a href="/inactivar_articulo/{{articulo.0}}" class="btn btn-desplazado btn-warning">Inactivar</a>
             {% else %}
-                <a href="/enviar_historico/{{articulo.0}}" class="btn btn-warning">Enviar a histórico</a>
+            <a href="/activar_articulo/{{articulo.0}}" class="btn btn-desplazado btn-success">Activar</a>
             {% endif %}
+        </td>
             
             <button type="submit" class="btn btn-success btn-block">Guardar</button>
     </form>

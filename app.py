@@ -350,9 +350,9 @@ def listadoProducto():
     
     return render_template('inventario.html', activos=productos_activos, inactivos=productos_inactivos)
 
-@app.route('/enviar_historico/<id_articulo>')
+@app.route('/inactivar_articulo/<id_articulo>')
 @login_required
-def enviar_historico(id_articulo):
+def inactivar_articulo(id_articulo):
     try:
         cur = mysql.connection.cursor()
         cur.execute('UPDATE articulo SET estado="historico" WHERE id_articulo = %s', (id_articulo,))
