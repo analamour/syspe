@@ -383,11 +383,11 @@ def cargarventa():
     if request.method == "POST":
         producto_ids = request.form.getlist('producto_id[]')
         cantidades = request.form.getlist('cantidad[]')
-        id_cliente = request.form.get('id_cliente') 
+        id_cliente = request.form.get('cliente_id') 
 
         total_venta = 0
         for producto_id, cantidad in zip(producto_ids, cantidades):
-            cur.execute('SELECT precio, stockDisponible, stockVendido FROM articulo WHERE id_articulo=%s', (producto_id,))
+            cur.execute('SELECT precio, stockDisponible, stockVendido FROM articulo WHERE id=%s', (producto_id,))
             precio, stockDisponible, stockVendido = cur.fetchone()
             cantidad = int(cantidad)
 
@@ -401,7 +401,7 @@ def cargarventa():
             cur.execute("""
                 UPDATE articulo
                 SET stockDisponible = %s, stockVendido = %s
-                WHERE id_articulo = %s
+                WHERE id = %s
             """, (nuevo_stockDisponible, nuevo_stockVendido, producto_id))
 
             total_venta += precio * cantidad
@@ -419,11 +419,11 @@ def cargarventa():
         # Selecciona solo clientes activos
         cur.execute('SELECT id_cliente, razonsocial FROM clientes WHERE estado = "activo"') 
         clientes_data = cur.fetchall()
-        
+
         # Selecciona solo productos activos con stock disponible
         cur.execute('SELECT id_articulo, producto, precio FROM articulo WHERE stockDisponible > 0 AND estado = "activo"')
         articulo_data = cur.fetchall()
-        
+
         return render_template('cargarventa.html', articulo=articulo_data, clientes=clientes_data)
 
 
@@ -432,7 +432,7 @@ def cargarventa():
 @login_required
 def cargarstock():
     cur = mysql.connection.cursor()
-    cur.execute ('SELECT id_articulo, producto FROM articulo')
+    cur.execute ('SELECT id, producto FROM articulo')
     data = cur.fetchall()
     return render_template('cargarstock.html', articulo = data)
 
@@ -450,7 +450,7 @@ def restar_stock_vendido():
             return redirect(url_for('cargarventa'))
         
         cur = mysql.connection.cursor()
-        cur.execute("SELECT stockDisponible, stockVendido FROM articulo WHERE id_articulo=%s", (codigoarticulo,))
+        cur.execute("SELECT stockDisponible, stockVendido FROM articulo WHERE id=%s", (codigoarticulo,))
         cantidadDisponibleActual, cantidadVendidaActual = cur.fetchone()
         print("Stock Disponible actual:", cantidadDisponibleActual)
         print("Stock Vendido actual:", cantidadVendidaActual)
@@ -466,7 +466,7 @@ def restar_stock_vendido():
                 UPDATE articulo
                 SET stockDisponible =%s,
                 stockVendido = %s
-                WHERE id_articulo =%s;
+                WHERE id =%s;
             """, (disponible, vendido, codigoarticulo))
             
             mysql.connection.commit()
@@ -766,13 +766,13 @@ def agregar_stock_ingresado():
         print("EL CODIGO articulo ES ",codigoarticulo)
         cantIngresoForm = request.form['cantidad']
         cur = mysql.connection.cursor()
-        cur.execute(f"select stockDisponible from articulo where id_articulo={codigoarticulo}")
+        cur.execute(f"select stockDisponible from articulo where id={codigoarticulo}")
         cantidadDisponibleActual = cur.fetchall()
         disponible = int(cantidadDisponibleActual[0][0]) + int(cantIngresoForm)
         cur.execute("""
             UPDATE articulo
             SET stockDisponible = %s
-            WHERE id_articulo = %s;
+            WHERE id = %s;
         """, (disponible, codigoarticulo))
         mysql.connection.commit()
         flash('Stock actualizado')
