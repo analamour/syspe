@@ -383,13 +383,28 @@ def cargarventa():
     if request.method == "POST":
         producto_ids = request.form.getlist('producto_id[]')
         cantidades = request.form.getlist('cantidad[]')
-        id_cliente = request.form.get('id_cliente')  # Asumo que tienes un campo para el ID del cliente en el formulario.
+        id_cliente = request.form.get('id_cliente') 
 
         total_venta = 0
         for producto_id, cantidad in zip(producto_ids, cantidades):
-            cur.execute("SELECT precio FROM articulo WHERE id_articulo=%s", (producto_id,))
-            precio = cur.fetchone()[0]
-            total_venta += precio * int(cantidad)
+            cur.execute('SELECT precio, stockDisponible, stockVendido FROM articulo WHERE id_articulo=%s', (producto_id,))
+            precio, stockDisponible, stockVendido = cur.fetchone()
+            cantidad = int(cantidad)
+
+            if cantidad > stockDisponible:
+                flash(f'La cantidad ingresada para el producto {producto_id} supera al stock disponible.')
+                return redirect(url_for('cargarventa'))
+
+            # Actualizar stock del producto
+            nuevo_stockDisponible = stockDisponible - cantidad
+            nuevo_stockVendido = stockVendido + cantidad
+            cur.execute("""
+                UPDATE articulo
+                SET stockDisponible = %s, stockVendido = %s
+                WHERE id_articulo = %s
+            """, (nuevo_stockDisponible, nuevo_stockVendido, producto_id))
+
+            total_venta += precio * cantidad
 
         # Guardando el pedido en la base de datos
         cur.execute('''
@@ -401,11 +416,16 @@ def cargarventa():
         return render_template('confirmacion.html', total=total_venta)
 
     else:  # Si es GET
-        cur.execute('SELECT id_cliente, razonsocial FROM clientes')  # Obteniendo clientes
+        # Selecciona solo clientes activos
+        cur.execute('SELECT id_cliente, razonsocial FROM clientes WHERE estado = "activo"') 
         clientes_data = cur.fetchall()
-        cur.execute('SELECT id_articulo, producto, precio FROM articulo WHERE stockDisponible > 0')
+        
+        # Selecciona solo productos activos con stock disponible
+        cur.execute('SELECT id_articulo, producto, precio FROM articulo WHERE stockDisponible > 0 AND estado = "activo"')
         articulo_data = cur.fetchall()
+        
         return render_template('cargarventa.html', articulo=articulo_data, clientes=clientes_data)
+
 
 
 @app.route("/cargarstock")
