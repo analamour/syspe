@@ -1,6 +1,16 @@
 Trabajo realizado para la carrera Análisis de sistema.
 
-SYSPE es un sistema destinado a pequeños emprendedores y trabajadores autónomos, enfocado en registrar información relevante del negocio entre ellas: clientes, stock y ventas. Acompañando al usuario en una gestión fácil, eficaz y concreta de la información de su negocio al alcance de su mano.
+SYSPE: Optimización y Gestión Eficaz para Emprendedores
+
+¿Sos un pequeño emprendedor o trabajador autónomo buscando una solución práctica para la administración de tu negocio? SYSPE ha sido diseñado especialmente para ti.
+
+Con SYSPE, tendrás la capacidad de:
+
+Registrar Clientes: Agrega nuevos clientes, actualiza su información y gestiona su historial de manera organizada.
+Administrar Stock: Carga productos, consulta su disponibilidad en tiempo real y actualiza sus cantidades con facilidad.
+Gestión de Pedidos: Carga, consulta y anula pedidos en unos pocos clics, y el sistema automáticamente descontará los productos del stock cuando realices una venta.
+Flexibilidad de Operación: Inactiva productos o clientes temporalmente según tus necesidades sin perder su historial.
+Nuestro objetivo es proporcionarte una herramienta sencilla pero poderosa que se convierta en el aliado perfecto para la gestión de tu negocio, permitiéndote tener el control absoluto de tu información y operaciones, estés donde estés.
 
 ![5](https://github.com/analamour/syspe/assets/80334601/cc938a0b-0d88-4531-8daa-88dfe20a2474)
 ![4](https://github.com/analamour/syspe/assets/80334601/db1d5a24-4b8b-464d-8b9b-076aba89867b)
