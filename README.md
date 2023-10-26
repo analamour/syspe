@@ -7,9 +7,13 @@ SYSPE: Optimización y Gestión Eficaz para Emprendedores
 Con SYSPE, tendrás la capacidad de:
 
 Registrar Clientes: Agrega nuevos clientes, actualiza su información y gestiona su historial de manera organizada.
+
 Administrar Stock: Carga productos, consulta su disponibilidad en tiempo real y actualiza sus cantidades con facilidad.
+
 Gestión de Pedidos: Carga, consulta y anula pedidos en unos pocos clics, y el sistema automáticamente descontará los productos del stock cuando realices una venta.
+
 Flexibilidad de Operación: Inactiva productos o clientes temporalmente según tus necesidades sin perder su historial.
+
 Nuestro objetivo es proporcionarte una herramienta sencilla pero poderosa que se convierta en el aliado perfecto para la gestión de tu negocio, permitiéndote tener el control absoluto de tu información y operaciones, estés donde estés.
 
 ![5](https://github.com/analamour/syspe/assets/80334601/cc938a0b-0d88-4531-8daa-88dfe20a2474)
