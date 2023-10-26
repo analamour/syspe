@@ -2,11 +2,12 @@ Trabajo realizado para la carrera Análisis de sistema.
 
 SYSPE es un sistema destinado a pequeños emprendedores y trabajadores autónomos, enfocado en registrar información relevante del negocio entre ellas: clientes, stock y ventas. Acompañando al usuario en una gestión fácil, eficaz y concreta de la información de su negocio al alcance de su mano.
 
+![5](https://github.com/analamour/syspe/assets/80334601/cc938a0b-0d88-4531-8daa-88dfe20a2474)
+![4](https://github.com/analamour/syspe/assets/80334601/db1d5a24-4b8b-464d-8b9b-076aba89867b)
+![3](https://github.com/analamour/syspe/assets/80334601/b6f0cc09-98b9-4bd4-b071-716f4b0f6b6c)
+![2](https://github.com/analamour/syspe/assets/80334601/3233c527-34c7-4c94-8412-8505c2659c5f)
+![1](https://github.com/analamour/syspe/assets/80334601/e738f73c-1466-45dd-9327-11cc13bd58d6)
 
-![1](https://user-images.githubusercontent.com/80334601/233845371-b0bffc4b-d87c-4e30-8f66-0c49146455e6.png)
-![2](https://user-images.githubusercontent.com/80334601/233845374-6c9a540b-4fa2-45da-8d12-18208b87b715.png)
-![3](https://user-images.githubusercontent.com/80334601/233845375-8faf6886-d3be-44e3-ae7f-07822a3699cd.png)
-![4](https://user-images.githubusercontent.com/80334601/233845376-3b0219ea-8bb6-46c2-b886-6efa2a27c528.png)
 
 Documentación online:
 
