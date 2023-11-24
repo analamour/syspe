@@ -1,16 +1,6 @@
 {% extends 'layout-nonlogged.html' %}
 {% block body %}
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<div class="alert alert-primary alert-dismissible" role="alert">
-    <strong><p>{{ message }}</p></strong>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{% endfor %}
-{% endif %}
-{% endwith %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
